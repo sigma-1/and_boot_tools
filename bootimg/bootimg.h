@@ -59,9 +59,7 @@ struct boot_img_hdr
      * binary compatibility with older versions of mkbootimg */
     uint8_t extra_cmdline[BOOT_EXTRA_ARGS_SIZE];
 }
-#ifdef WIN32
-#pragma pack(pop)
-#else
+#ifndef WIN32
 __attribute__((packed))
 #endif
 ;
