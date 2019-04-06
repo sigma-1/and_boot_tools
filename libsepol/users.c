@@ -97,7 +97,7 @@ static int user_to_record(sepol_handle_t * handle,
 	*record = tmp_record;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	/* FIXME: handle error */
 	sepol_user_free(tmp_record);
 	return STATUS_ERR;
@@ -271,17 +271,17 @@ int sepol_user_modify(sepol_handle_t * handle,
 		}
 	}
 
-	free((void*)roles);
+	free(roles);
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory");
 
-      err:
+err:
 	ERR(handle, "could not load %s into policy", name);
 
 	free(name);
-	free((void*)roles);
+	free(roles);
 	if (new && usrdatum) {
 		role_set_destroy(&usrdatum->roles);
 		free(usrdatum);
@@ -289,7 +289,7 @@ int sepol_user_modify(sepol_handle_t * handle,
 	return STATUS_ERR;
 }
 
-int sepol_user_exists(sepol_handle_t * handle __attribute__ ((unused)),
+int sepol_user_exists(sepol_handle_t * handle __attribute__((unused)),
 		      const sepol_policydb_t * p,
 		      const sepol_user_key_t * key, int *response)
 {
@@ -304,7 +304,7 @@ int sepol_user_exists(sepol_handle_t * handle __attribute__ ((unused)),
 	return STATUS_SUCCESS;
 }
 
-int sepol_user_count(sepol_handle_t * handle __attribute__ ((unused)),
+int sepol_user_count(sepol_handle_t * handle __attribute__((unused)),
 		     const sepol_policydb_t * p, unsigned int *response)
 {
 
@@ -338,15 +338,15 @@ int sepol_user_query(sepol_handle_t * handle,
 
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not query user %s", cname);
 	return STATUS_ERR;
 }
 
 int sepol_user_iterate(sepol_handle_t * handle,
 		       const sepol_policydb_t * p,
-		       int (*fn) (const sepol_user_t * user,
-				  void *fn_arg), void *arg)
+		       int (*fn)(const sepol_user_t * user,
+				 void *fn_arg), void *arg)
 {
 
 	const policydb_t *policydb = &p->p;
@@ -377,7 +377,7 @@ int sepol_user_iterate(sepol_handle_t * handle,
 
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not iterate over users");
 	sepol_user_free(user);
 	return STATUS_ERR;

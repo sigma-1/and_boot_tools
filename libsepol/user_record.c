@@ -52,7 +52,6 @@ int sepol_user_key_create(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_user_key_create)
-
 void sepol_user_key_unpack(const sepol_user_key_t * key, const char **name)
 {
 
@@ -60,7 +59,6 @@ void sepol_user_key_unpack(const sepol_user_key_t * key, const char **name)
 }
 
 hidden_def(sepol_user_key_unpack)
-
 int sepol_user_key_extract(sepol_handle_t * handle,
 			   const sepol_user_t * user,
 			   sepol_user_key_t ** key_ptr)
@@ -76,6 +74,8 @@ int sepol_user_key_extract(sepol_handle_t * handle,
 
 void sepol_user_key_free(sepol_user_key_t * key)
 {
+	if (!key)
+		return;
 	free(key->name);
 	free(key);
 }
@@ -114,7 +114,6 @@ int sepol_user_set_name(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_user_set_name)
-
 /* MLS */
 const char *sepol_user_get_mlslevel(const sepol_user_t * user)
 {
@@ -123,7 +122,6 @@ const char *sepol_user_get_mlslevel(const sepol_user_t * user)
 }
 
 hidden_def(sepol_user_get_mlslevel)
-
 int sepol_user_set_mlslevel(sepol_handle_t * handle,
 			    sepol_user_t * user, const char *mls_level)
 {
@@ -140,7 +138,6 @@ int sepol_user_set_mlslevel(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_user_set_mlslevel)
-
 const char *sepol_user_get_mlsrange(const sepol_user_t * user)
 {
 
@@ -148,7 +145,6 @@ const char *sepol_user_get_mlsrange(const sepol_user_t * user)
 }
 
 hidden_def(sepol_user_get_mlsrange)
-
 int sepol_user_set_mlsrange(sepol_handle_t * handle,
 			    sepol_user_t * user, const char *mls_range)
 {
@@ -165,7 +161,6 @@ int sepol_user_set_mlsrange(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_user_set_mlsrange)
-
 /* Roles */
 int sepol_user_get_num_roles(const sepol_user_t * user)
 {
@@ -178,16 +173,18 @@ int sepol_user_add_role(sepol_handle_t * handle,
 {
 
 	char *role_cp;
-	char **roles_realloc;
+	char **roles_realloc = NULL;
 
 	if (sepol_user_has_role(user, role))
 		return STATUS_SUCCESS;
 
 	role_cp = strdup(role);
+	if (!role_cp)
+		goto omem;
+
 	roles_realloc = realloc(user->roles,
 				sizeof(char *) * (user->num_roles + 1));
-
-	if (!role_cp || !roles_realloc)
+	if (!roles_realloc)
 		goto omem;
 
 	user->num_roles++;
@@ -196,7 +193,7 @@ int sepol_user_add_role(sepol_handle_t * handle,
 
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory, could not add role %s", role);
 	free(role_cp);
 	free(roles_realloc);
@@ -204,7 +201,6 @@ int sepol_user_add_role(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_user_add_role)
-
 int sepol_user_has_role(const sepol_user_t * user, const char *role)
 {
 
@@ -217,7 +213,6 @@ int sepol_user_has_role(const sepol_user_t * user, const char *role)
 }
 
 hidden_def(sepol_user_has_role)
-
 int sepol_user_set_roles(sepol_handle_t * handle,
 			 sepol_user_t * user,
 			 const char **roles_arr, unsigned int num_roles)
@@ -248,7 +243,7 @@ int sepol_user_set_roles(sepol_handle_t * handle,
 	user->num_roles = num_roles;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory, could not allocate roles array for"
 	    "user %s", user->name);
 
@@ -281,15 +276,14 @@ int sepol_user_get_roles(sepol_handle_t * handle,
 	*num_roles = user->num_roles;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory, could not "
 	    "allocate roles array for user %s", user->name);
-	free((void*)tmp_roles);
+	free(tmp_roles);
 	return STATUS_ERR;
 }
 
 hidden_def(sepol_user_get_roles)
-
 void sepol_user_del_role(sepol_user_t * user, const char *role)
 {
 
@@ -327,7 +321,6 @@ int sepol_user_create(sepol_handle_t * handle, sepol_user_t ** user_ptr)
 }
 
 hidden_def(sepol_user_create)
-
 /* Deep copy clone */
 int sepol_user_clone(sepol_handle_t * handle,
 		     const sepol_user_t * user, sepol_user_t ** user_ptr)
@@ -358,7 +351,7 @@ int sepol_user_clone(sepol_handle_t * handle,
 	*user_ptr = new_user;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not clone selinux user record");
 	sepol_user_free(new_user);
 	return STATUS_ERR;

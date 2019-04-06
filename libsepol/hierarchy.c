@@ -39,8 +39,8 @@
 
 #define BOUNDS_AVTAB_SIZE 1024
 
-static int bounds_insert_helper(sepol_handle_t *handle, avtab_t *avtab,
-				avtab_key_t *avtab_key, avtab_datum_t *datum)
+static int bounds_insert_helper(sepol_handle_t * handle, avtab_t * avtab,
+				avtab_key_t * avtab_key, avtab_datum_t * datum)
 {
 	int rc = avtab_insert(avtab, avtab_key, datum);
 	if (rc) {
@@ -52,17 +52,17 @@ static int bounds_insert_helper(sepol_handle_t *handle, avtab_t *avtab,
 	return rc;
 }
 
-
-static int bounds_insert_rule(sepol_handle_t *handle, avtab_t *avtab,
-			      avtab_t *global, avtab_t *other,
-			      avtab_key_t *avtab_key, avtab_datum_t *datum)
+static int bounds_insert_rule(sepol_handle_t * handle, avtab_t * avtab,
+			      avtab_t * global, avtab_t * other,
+			      avtab_key_t * avtab_key, avtab_datum_t * datum)
 {
 	int rc = 0;
 	avtab_datum_t *dup = avtab_search(avtab, avtab_key);
 
 	if (!dup) {
 		rc = bounds_insert_helper(handle, avtab, avtab_key, datum);
-		if (rc) goto exit;
+		if (rc)
+			goto exit;
 	} else {
 		dup->data |= datum->data;
 	}
@@ -80,9 +80,12 @@ static int bounds_insert_rule(sepol_handle_t *handle, avtab_t *avtab,
 				if (!dup) {
 					avtab_datum_t d;
 					d.data = data;
-					rc = bounds_insert_helper(handle, global,
-								  avtab_key, &d);
-					if (rc) goto exit;
+					rc = bounds_insert_helper(handle,
+								  global,
+								  avtab_key,
+								  &d);
+					if (rc)
+						goto exit;
 				} else {
 					dup->data |= data;
 				}
@@ -94,10 +97,10 @@ exit:
 	return rc;
 }
 
-static int bounds_expand_rule(sepol_handle_t *handle, policydb_t *p,
-			      avtab_t *avtab, avtab_t *global, avtab_t *other,
-			      uint32_t parent, uint32_t src, uint32_t tgt,
-			      uint32_t class, uint32_t data)
+static int bounds_expand_rule(sepol_handle_t * handle, policydb_t * p,
+			      avtab_t * avtab, avtab_t * global,
+			      avtab_t * other, uint32_t parent, uint32_t src,
+			      uint32_t tgt, uint32_t class, uint32_t data)
 {
 	int rc = 0;
 	avtab_key_t avtab_key;
@@ -117,7 +120,8 @@ static int bounds_expand_rule(sepol_handle_t *handle, policydb_t *p,
 			avtab_key.target_type = i + 1;
 			rc = bounds_insert_rule(handle, avtab, global, other,
 						&avtab_key, &datum);
-			if (rc) goto exit;
+			if (rc)
+				goto exit;
 		}
 	}
 
@@ -125,9 +129,9 @@ exit:
 	return rc;
 }
 
-static int bounds_expand_cond_rules(sepol_handle_t *handle, policydb_t *p,
-				    cond_av_list_t *cur, avtab_t *avtab,
-				    avtab_t *global, avtab_t *other,
+static int bounds_expand_cond_rules(sepol_handle_t * handle, policydb_t * p,
+				    cond_av_list_t * cur, avtab_t * avtab,
+				    avtab_t * global, avtab_t * other,
 				    uint32_t parent)
 {
 	int rc = 0;
@@ -137,7 +141,8 @@ static int bounds_expand_cond_rules(sepol_handle_t *handle, policydb_t *p,
 		rc = bounds_expand_rule(handle, p, avtab, global, other, parent,
 					n->key.source_type, n->key.target_type,
 					n->key.target_class, n->datum.data);
-		if (rc) goto exit;
+		if (rc)
+			goto exit;
 	}
 
 exit:
@@ -151,7 +156,7 @@ struct bounds_expand_args {
 	uint32_t parent;
 };
 
-static int bounds_expand_rule_callback(avtab_key_t *k, avtab_datum_t *d,
+static int bounds_expand_rule_callback(avtab_key_t * k, avtab_datum_t * d,
 				       void *args)
 {
 	struct bounds_expand_args *a = (struct bounds_expand_args *)args;
@@ -184,8 +189,8 @@ static void bounds_destroy_cond_info(struct bounds_cond_info *cur)
 	}
 }
 
-static int bounds_expand_parent_rules(sepol_handle_t *handle, policydb_t *p,
-				      avtab_t *global_avtab,
+static int bounds_expand_parent_rules(sepol_handle_t * handle, policydb_t * p,
+				      avtab_t * global_avtab,
 				      struct bounds_cond_info **cond_info,
 				      uint32_t parent)
 {
@@ -195,20 +200,23 @@ static int bounds_expand_parent_rules(sepol_handle_t *handle, policydb_t *p,
 
 	avtab_init(global_avtab);
 	rc = avtab_alloc(global_avtab, BOUNDS_AVTAB_SIZE);
-	if (rc) goto oom;
+	if (rc)
+		goto oom;
 
 	args.handle = handle;
 	args.p = p;
 	args.avtab = global_avtab;
 	args.parent = parent;
 	rc = avtab_map(&p->te_avtab, bounds_expand_rule_callback, &args);
-	if (rc) goto exit;
+	if (rc)
+		goto exit;
 
 	*cond_info = NULL;
 	for (cur = p->cond_list; cur; cur = cur->next) {
 		struct bounds_cond_info *ci;
 		ci = malloc(sizeof(struct bounds_cond_info));
-		if (!ci) goto oom;
+		if (!ci)
+			goto oom;
 		avtab_init(&ci->true_avtab);
 		avtab_init(&ci->false_avtab);
 		ci->cond_list = cur;
@@ -216,20 +224,25 @@ static int bounds_expand_parent_rules(sepol_handle_t *handle, policydb_t *p,
 		*cond_info = ci;
 		if (cur->true_list) {
 			rc = avtab_alloc(&ci->true_avtab, BOUNDS_AVTAB_SIZE);
-			if (rc) goto oom;
+			if (rc)
+				goto oom;
 			rc = bounds_expand_cond_rules(handle, p, cur->true_list,
 						      &ci->true_avtab, NULL,
 						      NULL, parent);
-			if (rc) goto exit;
+			if (rc)
+				goto exit;
 		}
 		if (cur->false_list) {
 			rc = avtab_alloc(&ci->false_avtab, BOUNDS_AVTAB_SIZE);
-			if (rc) goto oom;
-			rc = bounds_expand_cond_rules(handle, p, cur->false_list,
+			if (rc)
+				goto oom;
+			rc = bounds_expand_cond_rules(handle, p,
+						      cur->false_list,
 						      &ci->false_avtab,
 						      global_avtab,
 						      &ci->true_avtab, parent);
-			if (rc) goto exit;
+			if (rc)
+				goto exit;
 		}
 	}
 
@@ -239,15 +252,15 @@ oom:
 	ERR(handle, "Insufficient memory");
 
 exit:
-	ERR(handle,"Failed to expand parent rules\n");
+	ERR(handle, "Failed to expand parent rules\n");
 	avtab_destroy(global_avtab);
 	bounds_destroy_cond_info(*cond_info);
 	*cond_info = NULL;
 	return rc;
 }
 
-static int bounds_not_covered(avtab_t *global_avtab, avtab_t *cur_avtab,
-			      avtab_key_t *avtab_key, uint32_t data)
+static int bounds_not_covered(avtab_t * global_avtab, avtab_t * cur_avtab,
+			      avtab_key_t * avtab_key, uint32_t data)
 {
 	avtab_datum_t *datum = avtab_search(cur_avtab, avtab_key);
 	if (datum)
@@ -261,8 +274,8 @@ static int bounds_not_covered(avtab_t *global_avtab, avtab_t *cur_avtab,
 	return data;
 }
 
-static int bounds_add_bad(sepol_handle_t *handle, uint32_t src, uint32_t tgt,
-			  uint32_t class, uint32_t data, avtab_ptr_t *bad)
+static int bounds_add_bad(sepol_handle_t * handle, uint32_t src, uint32_t tgt,
+			  uint32_t class, uint32_t data, avtab_ptr_t * bad)
 {
 	struct avtab_node *new = malloc(sizeof(struct avtab_node));
 	if (new == NULL) {
@@ -280,11 +293,11 @@ static int bounds_add_bad(sepol_handle_t *handle, uint32_t src, uint32_t tgt,
 	return 0;
 }
 
-static int bounds_check_rule(sepol_handle_t *handle, policydb_t *p,
-			     avtab_t *global_avtab, avtab_t *cur_avtab,
+static int bounds_check_rule(sepol_handle_t * handle, policydb_t * p,
+			     avtab_t * global_avtab, avtab_t * cur_avtab,
 			     uint32_t child, uint32_t parent, uint32_t src,
 			     uint32_t tgt, uint32_t class, uint32_t data,
-			     avtab_ptr_t *bad, int *numbad)
+			     avtab_ptr_t * bad, int *numbad)
 {
 	int rc = 0;
 	avtab_key_t avtab_key;
@@ -313,8 +326,10 @@ static int bounds_check_rule(sepol_handle_t *handle, policydb_t *p,
 			}
 			if (d) {
 				(*numbad)++;
-				rc = bounds_add_bad(handle, child, i+1, class, d, bad);
-				if (rc) goto exit;
+				rc = bounds_add_bad(handle, child, i + 1, class,
+						    d, bad);
+				if (rc)
+					goto exit;
 			}
 		}
 	}
@@ -323,10 +338,10 @@ exit:
 	return rc;
 }
 
-static int bounds_check_cond_rules(sepol_handle_t *handle, policydb_t *p,
-				   avtab_t *global_avtab, avtab_t *cond_avtab,
-				   cond_av_list_t *rules, uint32_t child,
-				   uint32_t parent, avtab_ptr_t *bad,
+static int bounds_check_cond_rules(sepol_handle_t * handle, policydb_t * p,
+				   avtab_t * global_avtab, avtab_t * cond_avtab,
+				   cond_av_list_t * rules, uint32_t child,
+				   uint32_t parent, avtab_ptr_t * bad,
 				   int *numbad)
 {
 	int rc = 0;
@@ -342,7 +357,8 @@ static int bounds_check_cond_rules(sepol_handle_t *handle, policydb_t *p,
 				       child, parent, key->source_type,
 				       key->target_type, key->target_class,
 				       datum->data, bad, numbad);
-		if (rc) goto exit;
+		if (rc)
+			goto exit;
 	}
 
 exit:
@@ -359,7 +375,7 @@ struct bounds_check_args {
 	int numbad;
 };
 
-static int bounds_check_rule_callback(avtab_key_t *k, avtab_datum_t *d,
+static int bounds_check_rule_callback(avtab_key_t * k, avtab_datum_t * d,
 				      void *args)
 {
 	struct bounds_check_args *a = (struct bounds_check_args *)args;
@@ -372,11 +388,11 @@ static int bounds_check_rule_callback(avtab_key_t *k, avtab_datum_t *d,
 				 k->target_class, d->data, &a->bad, &a->numbad);
 }
 
-static int bounds_check_child_rules(sepol_handle_t *handle, policydb_t *p,
-				    avtab_t *global_avtab,
+static int bounds_check_child_rules(sepol_handle_t * handle, policydb_t * p,
+				    avtab_t * global_avtab,
 				    struct bounds_cond_info *cond_info,
 				    uint32_t child, uint32_t parent,
-				    avtab_ptr_t *bad, int *numbad)
+				    avtab_ptr_t * bad, int *numbad)
 {
 	int rc;
 	struct bounds_check_args args;
@@ -390,7 +406,8 @@ static int bounds_check_child_rules(sepol_handle_t *handle, policydb_t *p,
 	args.bad = NULL;
 	args.numbad = 0;
 	rc = avtab_map(&p->te_avtab, bounds_check_rule_callback, &args);
-	if (rc) goto exit;
+	if (rc)
+		goto exit;
 
 	for (cur = cond_info; cur; cur = cur->next) {
 		cond_list_t *node = cur->cond_list;
@@ -398,13 +415,15 @@ static int bounds_check_child_rules(sepol_handle_t *handle, policydb_t *p,
 					     &cur->true_avtab,
 					     node->true_list, child, parent,
 					     &args.bad, &args.numbad);
-		if (rc) goto exit;
+		if (rc)
+			goto exit;
 
 		rc = bounds_check_cond_rules(handle, p, global_avtab,
 					     &cur->false_avtab,
 					     node->false_list, child, parent,
 					     &args.bad, &args.numbad);
-		if (rc) goto exit;
+		if (rc)
+			goto exit;
 	}
 
 	*numbad += args.numbad;
@@ -414,15 +433,17 @@ exit:
 	return rc;
 }
 
-int bounds_check_type(sepol_handle_t *handle, policydb_t *p, uint32_t child,
-		      uint32_t parent, avtab_ptr_t *bad, int *numbad)
+int bounds_check_type(sepol_handle_t * handle, policydb_t * p, uint32_t child,
+		      uint32_t parent, avtab_ptr_t * bad, int *numbad)
 {
 	int rc = 0;
 	avtab_t global_avtab;
 	struct bounds_cond_info *cond_info = NULL;
 
-	rc = bounds_expand_parent_rules(handle, p, &global_avtab, &cond_info, parent);
-	if (rc) goto exit;
+	rc = bounds_expand_parent_rules(handle, p, &global_avtab, &cond_info,
+					parent);
+	if (rc)
+		goto exit;
 
 	rc = bounds_check_child_rules(handle, p, &global_avtab, cond_info,
 				      child, parent, bad, numbad);
@@ -440,10 +461,11 @@ struct bounds_args {
 	int numbad;
 };
 
-static void bounds_report(sepol_handle_t *handle, policydb_t *p, uint32_t child,
-			  uint32_t parent, avtab_ptr_t cur)
+static void bounds_report(sepol_handle_t * handle, policydb_t * p,
+			  uint32_t child, uint32_t parent, avtab_ptr_t cur)
 {
-	ERR(handle, "Child type %s exceeds bounds of parent %s in the following rules:",
+	ERR(handle,
+	    "Child type %s exceeds bounds of parent %s in the following rules:",
 	    p->p_type_val_to_name[child - 1],
 	    p->p_type_val_to_name[parent - 1]);
 	for (; cur; cur = cur->next) {
@@ -467,12 +489,12 @@ void bounds_destroy_bad(avtab_ptr_t cur)
 	}
 }
 
-static int bounds_check_type_callback(hashtab_key_t k __attribute__ ((unused)),
+static int bounds_check_type_callback(hashtab_key_t k __attribute__((unused)),
 				      hashtab_datum_t d, void *args)
 {
 	int rc = 0;
 	struct bounds_args *a = (struct bounds_args *)args;
-	type_datum_t *t = (type_datum_t *)d;
+	type_datum_t *t = (type_datum_t *) d;
 	avtab_ptr_t bad = NULL;
 
 	if (t->bounds) {
@@ -488,7 +510,7 @@ static int bounds_check_type_callback(hashtab_key_t k __attribute__ ((unused)),
 	return rc;
 }
 
-int bounds_check_types(sepol_handle_t *handle, policydb_t *p)
+int bounds_check_types(sepol_handle_t * handle, policydb_t * p)
 {
 	int rc;
 	struct bounds_args args;
@@ -498,7 +520,8 @@ int bounds_check_types(sepol_handle_t *handle, policydb_t *p)
 	args.numbad = 0;
 
 	rc = hashtab_map(p->p_types.table, bounds_check_type_callback, &args);
-	if (rc) goto exit;
+	if (rc)
+		goto exit;
 
 	if (args.numbad > 0) {
 		ERR(handle, "%d errors found during type bounds check",
@@ -534,7 +557,7 @@ static int bounds_check_role_callback(hashtab_key_t k,
 	return 0;
 }
 
-int bounds_check_roles(sepol_handle_t *handle, policydb_t *p)
+int bounds_check_roles(sepol_handle_t * handle, policydb_t * p)
 {
 	struct bounds_args args;
 
@@ -570,14 +593,14 @@ static int bounds_check_user_callback(hashtab_key_t k,
 
 	if (up && !ebitmap_contains(&up->roles.roles, &u->roles.roles)) {
 		ERR(a->handle, "User bounds violation, %s exceeds %s",
-		    (char *) k, a->p->p_user_val_to_name[up->s.value - 1]);
+		    (char *)k, a->p->p_user_val_to_name[up->s.value - 1]);
 		a->numbad++;
 	}
 
 	return 0;
 }
 
-int bounds_check_users(sepol_handle_t *handle, policydb_t *p)
+int bounds_check_users(sepol_handle_t * handle, policydb_t * p)
 {
 	struct bounds_args args;
 
@@ -641,8 +664,7 @@ int bounds_check_users(sepol_handle_t *handle, policydb_t *p)
 static add_hierarchy_callback_template(type)
 static add_hierarchy_callback_template(role)
 static add_hierarchy_callback_template(user)
-
-int hierarchy_add_bounds(sepol_handle_t *handle, policydb_t *p)
+int hierarchy_add_bounds(sepol_handle_t * handle, policydb_t * p)
 {
 	int rc = 0;
 	struct bounds_args args;
@@ -652,13 +674,16 @@ int hierarchy_add_bounds(sepol_handle_t *handle, policydb_t *p)
 	args.numbad = 0;
 
 	rc = hashtab_map(p->p_users.table, hierarchy_add_user_callback, &args);
-	if (rc) goto exit;
+	if (rc)
+		goto exit;
 
 	rc = hashtab_map(p->p_roles.table, hierarchy_add_role_callback, &args);
-	if (rc) goto exit;
+	if (rc)
+		goto exit;
 
 	rc = hashtab_map(p->p_types.table, hierarchy_add_type_callback, &args);
-	if (rc) goto exit;
+	if (rc)
+		goto exit;
 
 	if (args.numbad > 0) {
 		ERR(handle, "%d errors found while adding hierarchies",
@@ -676,7 +701,8 @@ int hierarchy_check_constraints(sepol_handle_t * handle, policydb_t * p)
 	int violation = 0;
 
 	rc = hierarchy_add_bounds(handle, p);
-	if (rc) goto exit;
+	if (rc)
+		goto exit;
 
 	rc = bounds_check_users(handle, p);
 	if (rc)

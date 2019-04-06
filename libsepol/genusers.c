@@ -7,7 +7,7 @@
 
 #include <sepol/policydb/policydb.h>
 
-#if 0
+#ifndef __APPLE__
 #include <stdio_ext.h>
 #endif
 
@@ -52,13 +52,19 @@ static int load_users(struct policydb *policydb, const char *path)
 	if (fp == NULL)
 		return -1;
 
+#ifdef __APPLE__
 	if ((buffer = (char *)malloc(255 * sizeof(char))) == NULL) {
-	  ERR(NULL, "out of memory");
-	  return -1;
+		ERR(NULL, "out of memory");
+		return -1;
 	}
 
-	while(fgets(buffer, 255, fp) != NULL) {
+	while (fgets(buffer, 255, fp) != NULL) {
 		nread = strlen(buffer);
+#else
+	size_t len = 0;
+	__fsetlocking(fp, FSETLOCKING_BYCALLER);
+	while ((nread = getline(&buffer, &len, fp)) > 0) {
+#endif
 
 		lineno++;
 		if (buffer[nread - 1] == '\n')
@@ -201,11 +207,13 @@ static int load_users(struct policydb *policydb, const char *path)
 			if (!(*p))
 				BADLINE();
 			q = p;
-			while (*p && strncasecmp(p, "range", 5))
+			while (*p
+			       && (!isspace(*p)
+				   || strncasecmp(p + 1, "range", 5)))
 				p++;
-			if (!(*p))
+			if (!(*p) || p == q)
 				BADLINE();
-			*--p = 0;
+			*p = 0;
 			p++;
 
 			scontext = malloc(p - q);
@@ -291,7 +299,7 @@ static int load_users(struct policydb *policydb, const char *path)
 }
 
 int sepol_genusers(void *data, size_t len,
-		   const char *usersdir, void **newdata, size_t * newlen)
+		   const char *usersdir, void **newdata, size_t *newlen)
 {
 	struct policydb policydb;
 	char path[PATH_MAX];
@@ -314,10 +322,10 @@ int sepol_genusers(void *data, size_t len,
 	policydb_destroy(&policydb);
 	return 0;
 
-      err_destroy:
+err_destroy:
 	policydb_destroy(&policydb);
 
-      err:
+err:
 	return -1;
 }
 

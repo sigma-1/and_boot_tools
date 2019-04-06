@@ -3,6 +3,12 @@
 #else
 #include <netinet/in.h>
 #endif
+#ifndef IPPROTO_DCCP
+#define IPPROTO_DCCP 33
+#endif
+#ifndef IPPROTO_SCTP
+#define IPPROTO_SCTP 132
+#endif
 #include <stdlib.h>
 
 #include "debug.h"
@@ -22,6 +28,8 @@ static inline int sepol2ipproto(sepol_handle_t * handle, int proto)
 		return IPPROTO_UDP;
 	case SEPOL_PROTO_DCCP:
 		return IPPROTO_DCCP;
+	case SEPOL_PROTO_SCTP:
+		return IPPROTO_SCTP;
 	default:
 		ERR(handle, "unsupported protocol %u", proto);
 		return STATUS_ERR;
@@ -38,6 +46,8 @@ static inline int ipproto2sepol(sepol_handle_t * handle, int proto)
 		return SEPOL_PROTO_UDP;
 	case IPPROTO_DCCP:
 		return SEPOL_PROTO_DCCP;
+	case IPPROTO_SCTP:
+		return SEPOL_PROTO_SCTP;
 	default:
 		ERR(handle, "invalid protocol %u " "found in policy", proto);
 		return STATUS_ERR;
@@ -90,10 +100,10 @@ static int port_from_record(sepol_handle_t * handle,
 	*port = tmp_port;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory");
 
-      err:
+err:
 	if (tmp_port != NULL) {
 		context_destroy(&tmp_port->context[0]);
 		free(tmp_port);
@@ -139,7 +149,7 @@ static int port_to_record(sepol_handle_t * handle,
 	*record = tmp_record;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not convert port range %u - %u (%s) "
 	    "to record", low, high, sepol_port_get_proto_str(rec_proto));
 	sepol_context_free(tmp_con);
@@ -148,7 +158,7 @@ static int port_to_record(sepol_handle_t * handle,
 }
 
 /* Return the number of ports */
-extern int sepol_port_count(sepol_handle_t * handle __attribute__ ((unused)),
+extern int sepol_port_count(sepol_handle_t * handle __attribute__((unused)),
 			    const sepol_policydb_t * p, unsigned int *response)
 {
 
@@ -197,7 +207,7 @@ int sepol_port_exists(sepol_handle_t * handle,
 	*response = 0;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not check if port range %u - %u (%s) exists",
 	    low, high, proto_str);
 	return STATUS_ERR;
@@ -236,7 +246,7 @@ int sepol_port_query(sepol_handle_t * handle,
 	*response = NULL;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not query port range %u - %u (%s)",
 	    low, high, proto_str);
 	return STATUS_ERR;
@@ -270,7 +280,7 @@ int sepol_port_modify(sepol_handle_t * handle,
 
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not load port range %u - %u (%s)",
 	    low, high, proto_str);
 	if (port != NULL) {
@@ -282,8 +292,8 @@ int sepol_port_modify(sepol_handle_t * handle,
 
 int sepol_port_iterate(sepol_handle_t * handle,
 		       const sepol_policydb_t * p,
-		       int (*fn) (const sepol_port_t * port,
-				  void *fn_arg), void *arg)
+		       int (*fn)(const sepol_port_t * port,
+				 void *fn_arg), void *arg)
 {
 
 	const policydb_t *policydb = &p->p;
@@ -312,7 +322,7 @@ int sepol_port_iterate(sepol_handle_t * handle,
 
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not iterate over ports");
 	sepol_port_free(port);
 	return STATUS_ERR;

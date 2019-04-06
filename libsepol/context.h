@@ -32,6 +32,6 @@ extern int context_is_valid(const policydb_t * policydb,
 extern int context_to_string(sepol_handle_t * handle,
 			     const policydb_t * policydb,
 			     const context_struct_t * context,
-			     char **result, size_t * result_len);
+			     char **result, size_t *result_len);
 
 #endif

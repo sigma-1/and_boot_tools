@@ -68,10 +68,10 @@ static int node_from_record(sepol_handle_t * handle,
 	*node = tmp_node;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory");
 
-      err:
+err:
 	if (tmp_node != NULL) {
 		context_destroy(&tmp_node->context[0]);
 		free(tmp_node);
@@ -140,7 +140,7 @@ static int node_to_record(sepol_handle_t * handle,
 	*record = tmp_record;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not convert node to record");
 	sepol_context_free(tmp_con);
 	sepol_node_free(tmp_record);
@@ -148,7 +148,7 @@ static int node_to_record(sepol_handle_t * handle,
 }
 
 /* Return the number of nodes */
-extern int sepol_node_count(sepol_handle_t * handle __attribute__ ((unused)),
+extern int sepol_node_count(sepol_handle_t * handle __attribute__((unused)),
 			    const sepol_policydb_t * p, unsigned int *response)
 {
 
@@ -223,7 +223,7 @@ int sepol_node_exists(sepol_handle_t * handle,
 	*response = 0;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not check if node %s/%s (%s) exists",
 	    addr, mask, sepol_node_get_proto_str(proto));
 	return STATUS_ERR;
@@ -289,7 +289,7 @@ int sepol_node_query(sepol_handle_t * handle,
 	*response = NULL;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not query node %s/%s (%s)",
 	    addr, mask, sepol_node_get_proto_str(proto));
 	return STATUS_ERR;
@@ -336,7 +336,7 @@ int sepol_node_modify(sepol_handle_t * handle,
 
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not load node %s/%s (%s)",
 	    addr, mask, sepol_node_get_proto_str(proto));
 	if (node != NULL) {
@@ -348,8 +348,8 @@ int sepol_node_modify(sepol_handle_t * handle,
 
 int sepol_node_iterate(sepol_handle_t * handle,
 		       const sepol_policydb_t * p,
-		       int (*fn) (const sepol_node_t * node,
-				  void *fn_arg), void *arg)
+		       int (*fn)(const sepol_node_t * node,
+				 void *fn_arg), void *arg)
 {
 
 	const policydb_t *policydb = &p->p;
@@ -397,7 +397,7 @@ int sepol_node_iterate(sepol_handle_t * handle,
 
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not iterate over nodes");
 	sepol_node_free(node);
 	return STATUS_ERR;

@@ -88,7 +88,7 @@ int context_is_valid(const policydb_t * p, const context_struct_t * c)
 int context_to_string(sepol_handle_t * handle,
 		      const policydb_t * policydb,
 		      const context_struct_t * context,
-		      char **result, size_t * result_len)
+		      char **result, size_t *result_len)
 {
 
 	char *scontext = NULL;
@@ -132,7 +132,7 @@ int context_to_string(sepol_handle_t * handle,
 	*result_len = scontext_len;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory, could not convert " "context to string");
 	free(scontext);
 	return STATUS_ERR;
@@ -224,11 +224,11 @@ int context_from_record(sepol_handle_t * handle,
 	free(role);
 	return STATUS_SUCCESS;
 
-      err_destroy:
+err_destroy:
 	errno = EINVAL;
 	context_destroy(scontext);
 
-      err:
+err:
 	free(scontext);
 	free(user);
 	free(type);
@@ -279,7 +279,7 @@ int context_to_record(sepol_handle_t * handle,
 	*record = tmp_record;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not create context record");
 	sepol_context_free(tmp_record);
 	free(mls);
@@ -324,7 +324,7 @@ int context_from_string(sepol_handle_t * handle,
 	sepol_context_free(ctx_record);
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not create context structure");
 	free(con_cpy);
 	sepol_context_free(ctx_record);

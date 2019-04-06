@@ -131,7 +131,6 @@ int sepol_module_package_create(sepol_module_package_t ** p)
 }
 
 hidden_def(sepol_module_package_create)
-
 /* Deallocates all memory associated with a module package, including
  * the pointer itself.  Does nothing if p is NULL.
  */
@@ -149,7 +148,6 @@ void sepol_module_package_free(sepol_module_package_t * p)
 }
 
 hidden_def(sepol_module_package_free)
-
 char *sepol_module_package_get_file_contexts(sepol_module_package_t * p)
 {
 	return p->file_contexts;
@@ -372,19 +370,19 @@ static int read_helper(char *buf, struct policy_file *file, uint32_t bytes)
  * the appropriate size and the caller must free() them */
 static int module_package_read_offsets(sepol_module_package_t * mod,
 				       struct policy_file *file,
-				       size_t ** offsets, uint32_t * sections)
+				       size_t **offsets, uint32_t * sections)
 {
 	uint32_t *buf = NULL, nsec;
 	unsigned i;
 	size_t *off = NULL;
 	int rc;
 
-	buf = malloc(sizeof(uint32_t)*3);
+	buf = malloc(sizeof(uint32_t) * 3);
 	if (!buf) {
 		ERR(file->handle, "out of memory");
 		goto err;
 	}
-	  
+
 	rc = next_entry(buf, file, sizeof(uint32_t) * 3);
 	if (rc < 0) {
 		ERR(file->handle, "module package header truncated");
@@ -406,7 +404,7 @@ static int module_package_read_offsets(sepol_module_package_t * mod,
 		goto err;
 	}
 
-	off = (size_t *) malloc((nsec + 1) * sizeof(size_t));
+	off = (size_t *)malloc((nsec + 1) * sizeof(size_t));
 	if (!off) {
 		ERR(file->handle, "out of memory");
 		goto err;
@@ -428,8 +426,7 @@ static int module_package_read_offsets(sepol_module_package_t * mod,
 		off[i] = le32_to_cpu(buf[i]);
 		if (i && off[i] < off[i - 1]) {
 			ERR(file->handle, "offsets are not increasing (at %u, "
-			    "offset %zu -> %zu", i, off[i - 1],
-			    off[i]);
+			    "offset %zu -> %zu", i, off[i - 1], off[i]);
 			goto err;
 		}
 	}
@@ -438,10 +435,9 @@ static int module_package_read_offsets(sepol_module_package_t * mod,
 	if (rc < 0)
 		goto err;
 
-	if (nsec && off[nsec] < off[nsec-1]) {
+	if (nsec && off[nsec] < off[nsec - 1]) {
 		ERR(file->handle, "offset greater than file size (at %u, "
-		    "offset %zu -> %zu", nsec, off[nsec - 1],
-		    off[nsec]);
+		    "offset %zu -> %zu", nsec, off[nsec - 1], off[nsec]);
 		goto err;
 	}
 	*offsets = off;
@@ -641,7 +637,7 @@ int sepol_module_package_read(sepol_module_package_t * mod,
 	free(offsets);
 	return 0;
 
-      cleanup:
+cleanup:
 	free(offsets);
 	return -1;
 }
@@ -750,9 +746,8 @@ int sepol_module_package_info(struct sepol_policy_file *spf, int *type,
 			id = malloc(len + 1);
 			if (!id) {
 				ERR(file->handle,
-				    "out of memory (at section %u)",
-				    i);
-				goto cleanup;				
+				    "out of memory (at section %u)", i);
+				goto cleanup;
 			}
 			rc = next_entry(id, file, len);
 			free(id);
@@ -762,7 +757,7 @@ int sepol_module_package_info(struct sepol_policy_file *spf, int *type,
 				    i);
 				goto cleanup;
 			}
-			
+
 			rc = next_entry(buf, file, sizeof(uint32_t) * 5);
 			if (rc < 0) {
 				ERR(file->handle,
@@ -829,7 +824,7 @@ int sepol_module_package_info(struct sepol_policy_file *spf, int *type,
 	free(offsets);
 	return 0;
 
-      cleanup:
+cleanup:
 	sepol_module_package_free(mod);
 	free(offsets);
 	return -1;

@@ -42,7 +42,6 @@ int sepol_bool_key_create(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_bool_key_create)
-
 void sepol_bool_key_unpack(const sepol_bool_key_t * key, const char **name)
 {
 
@@ -50,7 +49,6 @@ void sepol_bool_key_unpack(const sepol_bool_key_t * key, const char **name)
 }
 
 hidden_def(sepol_bool_key_unpack)
-
 int sepol_bool_key_extract(sepol_handle_t * handle,
 			   const sepol_bool_t * boolean,
 			   sepol_bool_key_t ** key_ptr)
@@ -67,6 +65,8 @@ int sepol_bool_key_extract(sepol_handle_t * handle,
 
 void sepol_bool_key_free(sepol_bool_key_t * key)
 {
+	if (!key)
+		return;
 	free(key->name);
 	free(key);
 }
@@ -93,7 +93,6 @@ const char *sepol_bool_get_name(const sepol_bool_t * boolean)
 }
 
 hidden_def(sepol_bool_get_name)
-
 int sepol_bool_set_name(sepol_handle_t * handle,
 			sepol_bool_t * boolean, const char *name)
 {
@@ -109,7 +108,6 @@ int sepol_bool_set_name(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_bool_set_name)
-
 /* Value */
 int sepol_bool_get_value(const sepol_bool_t * boolean)
 {
@@ -118,7 +116,6 @@ int sepol_bool_get_value(const sepol_bool_t * boolean)
 }
 
 hidden_def(sepol_bool_get_value)
-
 void sepol_bool_set_value(sepol_bool_t * boolean, int value)
 {
 
@@ -126,7 +123,6 @@ void sepol_bool_set_value(sepol_bool_t * boolean, int value)
 }
 
 hidden_def(sepol_bool_set_value)
-
 /* Create */
 int sepol_bool_create(sepol_handle_t * handle, sepol_bool_t ** bool_ptr)
 {
@@ -147,7 +143,6 @@ int sepol_bool_create(sepol_handle_t * handle, sepol_bool_t ** bool_ptr)
 }
 
 hidden_def(sepol_bool_create)
-
 /* Deep copy clone */
 int sepol_bool_clone(sepol_handle_t * handle,
 		     const sepol_bool_t * boolean, sepol_bool_t ** bool_ptr)
@@ -166,7 +161,7 @@ int sepol_bool_clone(sepol_handle_t * handle,
 	*bool_ptr = new_bool;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not clone boolean record");
 	sepol_bool_free(new_bool);
 	return STATUS_ERR;

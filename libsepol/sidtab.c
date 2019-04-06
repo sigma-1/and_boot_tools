@@ -1,5 +1,5 @@
 
-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
 
 /* FLASK */
 
@@ -143,9 +143,9 @@ context_struct_t *sepol_sidtab_search(sidtab_t * s, sepol_security_id_t sid)
 }
 
 int sepol_sidtab_map(sidtab_t * s,
-		     int (*apply) (sepol_security_id_t sid,
-				   context_struct_t * context,
-				   void *args), void *args)
+		     int (*apply)(sepol_security_id_t sid,
+				  context_struct_t * context,
+				  void *args), void *args)
 {
 	int i, ret;
 	sidtab_node_t *cur;
@@ -166,9 +166,9 @@ int sepol_sidtab_map(sidtab_t * s,
 }
 
 void sepol_sidtab_map_remove_on_error(sidtab_t * s,
-				      int (*apply) (sepol_security_id_t sid,
-						    context_struct_t * context,
-						    void *args), void *args)
+				      int (*apply)(sepol_security_id_t sid,
+						   context_struct_t * context,
+						   void *args), void *args)
 {
 	int i, ret;
 	sidtab_node_t *last, *cur, *temp;
@@ -246,7 +246,7 @@ int sepol_sidtab_context_to_sid(sidtab_t * s,
 		ret = sepol_sidtab_insert(s, sid, context);
 		if (ret)
 			s->next_sid--;
-	      unlock_out:
+unlock_out:
 		SIDTAB_UNLOCK(s);
 	}
 

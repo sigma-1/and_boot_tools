@@ -1,4 +1,4 @@
-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
 /*
  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
  *
@@ -66,7 +66,7 @@ int mls_to_string(sepol_handle_t * handle,
 	*str = ptr2;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory, could not convert mls context to string");
 
 	free(ptr);
@@ -94,10 +94,10 @@ int mls_from_string(sepol_handle_t * handle,
 	free(tmp);
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory");
 
-      err:
+err:
 	ERR(handle, "could not construct mls context structure");
 	return STATUS_ERR;
 }
@@ -120,9 +120,8 @@ int mls_compute_context_len(const policydb_t * policydb,
 	for (l = 0; l < 2; l++) {
 		range = 0;
 		len +=
-		    strlen(policydb->
-			   p_sens_val_to_name[context->range.level[l].sens -
-					      1]);
+		    strlen(policydb->p_sens_val_to_name
+			   [context->range.level[l].sens - 1]);
 
 		ebitmap_for_each_bit(&context->range.level[l].cat, cnode, i) {
 			if (ebitmap_node_get_bit(cnode, i)) {
@@ -137,9 +136,8 @@ int mls_compute_context_len(const policydb_t * policydb,
 			} else {
 				if (range > 1)
 					len +=
-					    strlen(policydb->
-						   p_cat_val_to_name[i - 1]) +
-					    1;
+					    strlen(policydb->p_cat_val_to_name
+						   [i - 1]) + 1;
 				range = 0;
 			}
 		}
@@ -184,12 +182,11 @@ void mls_sid_to_context(const policydb_t * policydb,
 		range = 0;
 		wrote_sep = 0;
 		strcpy(scontextp,
-		       policydb->p_sens_val_to_name[context->range.level[l].
-						    sens - 1]);
+		       policydb->p_sens_val_to_name[context->range.
+						    level[l].sens - 1]);
 		scontextp +=
-		    strlen(policydb->
-			   p_sens_val_to_name[context->range.level[l].sens -
-					      1]);
+		    strlen(policydb->p_sens_val_to_name
+			   [context->range.level[l].sens - 1]);
 		/* categories */
 		ebitmap_for_each_bit(&context->range.level[l].cat, cnode, i) {
 			if (ebitmap_node_get_bit(cnode, i)) {
@@ -219,8 +216,8 @@ void mls_sid_to_context(const policydb_t * policydb,
 					       policydb->p_cat_val_to_name[i -
 									   1]);
 					scontextp +=
-					    strlen(policydb->
-						   p_cat_val_to_name[i - 1]);
+					    strlen(policydb->p_cat_val_to_name
+						   [i - 1]);
 				}
 				range = 0;
 			}
@@ -285,7 +282,8 @@ int mls_context_isvalid(const policydb_t * p, const context_struct_t * c)
 		if (!key)
 			return 0;
 
-		levdatum = (level_datum_t *) hashtab_search(p->p_levels.table, key);
+		levdatum =
+		    (level_datum_t *) hashtab_search(p->p_levels.table, key);
 		if (!levdatum)
 			return 0;
 
@@ -381,10 +379,10 @@ int mls_context_to_sid(const policydb_t * policydb,
 				}
 
 				catdatum =
-				    (cat_datum_t *) hashtab_search(policydb->
-								   p_cats.table,
-								   (hashtab_key_t)
-								   scontextp);
+				    (cat_datum_t *)
+				    hashtab_search(policydb->p_cats.table,
+						   (hashtab_key_t)
+						   scontextp);
 				if (!catdatum)
 					goto err;
 
@@ -398,8 +396,8 @@ int mls_context_to_sid(const policydb_t * policydb,
 					unsigned int i;
 
 					rngdatum = (cat_datum_t *)
-					    hashtab_search(policydb->p_cats.
-							   table,
+					    hashtab_search(policydb->
+							   p_cats.table,
 							   (hashtab_key_t)
 							   rngptr);
 					if (!rngdatum)
@@ -412,8 +410,8 @@ int mls_context_to_sid(const policydb_t * policydb,
 					for (i = catdatum->s.value;
 					     i < rngdatum->s.value; i++) {
 						if (ebitmap_set_bit
-						    (&context->range.level[l].
-						     cat, i, 1))
+						    (&context->range.
+						     level[l].cat, i, 1))
 							goto err;
 					}
 				}
@@ -445,7 +443,7 @@ int mls_context_to_sid(const policydb_t * policydb,
 
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	return STATUS_ERR;
 }
 
@@ -566,13 +564,9 @@ int mls_convert_context(policydb_t * oldp,
 	for (l = 0; l < 2; l++) {
 		levdatum =
 		    (level_datum_t *) hashtab_search(newp->p_levels.table,
-						     oldp->
-						     p_sens_val_to_name[c->
-									range.
-									level
-									[l].
-									sens -
-									1]);
+						     oldp->p_sens_val_to_name
+						     [c->range.level[l].sens -
+						      1]);
 
 		if (!levdatum)
 			return -EINVAL;
@@ -584,10 +578,9 @@ int mls_convert_context(policydb_t * oldp,
 				int rc;
 
 				catdatum =
-				    (cat_datum_t *) hashtab_search(newp->p_cats.
-								   table,
-								   oldp->
-								   p_cat_val_to_name
+				    (cat_datum_t *) hashtab_search(newp->
+								   p_cats.table,
+								   oldp->p_cat_val_to_name
 								   [i]);
 				if (!catdatum)
 					return -EINVAL;
@@ -624,7 +617,7 @@ int mls_compute_sid(policydb_t * policydb,
 		rtr.source_type = scontext->type;
 		rtr.target_type = tcontext->type;
 		rtr.target_class = tclass;
-		r = hashtab_search(policydb->range_tr, (hashtab_key_t) &rtr);
+		r = hashtab_search(policydb->range_tr, (hashtab_key_t) & rtr);
 		if (r)
 			return mls_range_set(newcontext, r);
 
@@ -692,10 +685,10 @@ int sepol_mls_contains(sepol_handle_t * handle,
 	free(ctx2);
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory");
 
-      err:
+err:
 	ERR(handle, "could not check if mls context %s contains %s",
 	    mls1, mls2);
 	context_destroy(ctx1);
@@ -729,7 +722,7 @@ void mls_semantic_cat_init(mls_semantic_cat_t * c)
 	memset(c, 0, sizeof(mls_semantic_cat_t));
 }
 
-void mls_semantic_cat_destroy(mls_semantic_cat_t * c __attribute__ ((unused)))
+void mls_semantic_cat_destroy(mls_semantic_cat_t * c __attribute__((unused)))
 {
 	/* it's currently a simple struct - really nothing to destroy */
 	return;
@@ -784,7 +777,7 @@ int mls_semantic_level_cpy(mls_semantic_level_t * dst,
 	}
 	return 0;
 
-      err:
+err:
 	mls_semantic_level_destroy(dst);
 	return -1;
 }

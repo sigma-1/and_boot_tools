@@ -47,7 +47,6 @@ int sepol_port_key_create(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_port_key_create)
-
 void sepol_port_key_unpack(const sepol_port_key_t * key,
 			   int *low, int *high, int *proto)
 {
@@ -58,7 +57,6 @@ void sepol_port_key_unpack(const sepol_port_key_t * key,
 }
 
 hidden_def(sepol_port_key_unpack)
-
 int sepol_port_key_extract(sepol_handle_t * handle,
 			   const sepol_port_t * port,
 			   sepol_port_key_t ** key_ptr)
@@ -142,7 +140,6 @@ int sepol_port_get_low(const sepol_port_t * port)
 }
 
 hidden_def(sepol_port_get_low)
-
 int sepol_port_get_high(const sepol_port_t * port)
 {
 
@@ -150,7 +147,6 @@ int sepol_port_get_high(const sepol_port_t * port)
 }
 
 hidden_def(sepol_port_get_high)
-
 void sepol_port_set_port(sepol_port_t * port, int port_num)
 {
 
@@ -166,7 +162,6 @@ void sepol_port_set_range(sepol_port_t * port, int low, int high)
 }
 
 hidden_def(sepol_port_set_range)
-
 /* Protocol */
 int sepol_port_get_proto(const sepol_port_t * port)
 {
@@ -175,7 +170,6 @@ int sepol_port_get_proto(const sepol_port_t * port)
 }
 
 hidden_def(sepol_port_get_proto)
-
 const char *sepol_port_get_proto_str(int proto)
 {
 
@@ -186,13 +180,14 @@ const char *sepol_port_get_proto_str(int proto)
 		return "tcp";
 	case SEPOL_PROTO_DCCP:
 		return "dccp";
+	case SEPOL_PROTO_SCTP:
+		return "sctp";
 	default:
 		return "???";
 	}
 }
 
 hidden_def(sepol_port_get_proto_str)
-
 void sepol_port_set_proto(sepol_port_t * port, int proto)
 {
 
@@ -200,7 +195,6 @@ void sepol_port_set_proto(sepol_port_t * port, int proto)
 }
 
 hidden_def(sepol_port_set_proto)
-
 /* Create */
 int sepol_port_create(sepol_handle_t * handle, sepol_port_t ** port)
 {
@@ -222,7 +216,6 @@ int sepol_port_create(sepol_handle_t * handle, sepol_port_t ** port)
 }
 
 hidden_def(sepol_port_create)
-
 /* Deep copy clone */
 int sepol_port_clone(sepol_handle_t * handle,
 		     const sepol_port_t * port, sepol_port_t ** port_ptr)
@@ -243,7 +236,7 @@ int sepol_port_clone(sepol_handle_t * handle,
 	*port_ptr = new_port;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not clone port record");
 	sepol_port_free(new_port);
 	return STATUS_ERR;
@@ -261,7 +254,6 @@ void sepol_port_free(sepol_port_t * port)
 }
 
 hidden_def(sepol_port_free)
-
 /* Context */
 sepol_context_t *sepol_port_get_con(const sepol_port_t * port)
 {
@@ -270,7 +262,6 @@ sepol_context_t *sepol_port_get_con(const sepol_port_t * port)
 }
 
 hidden_def(sepol_port_get_con)
-
 int sepol_port_set_con(sepol_handle_t * handle,
 		       sepol_port_t * port, sepol_context_t * con)
 {

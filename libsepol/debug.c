@@ -25,14 +25,12 @@ int sepol_msg_get_level(sepol_handle_t * handle)
 }
 
 hidden_def(sepol_msg_get_level)
-
 const char *sepol_msg_get_channel(sepol_handle_t * handle)
 {
 	return handle->msg_channel;
 }
 
 hidden_def(sepol_msg_get_channel)
-
 const char *sepol_msg_get_fname(sepol_handle_t * handle)
 {
 	return handle->msg_fname;
@@ -40,9 +38,9 @@ const char *sepol_msg_get_fname(sepol_handle_t * handle)
 
 hidden_def(sepol_msg_get_fname)
 #ifdef __GNUC__
-    __attribute__ ((format(printf, 3, 4)))
+    __attribute__((format(printf, 3, 4)))
 #endif
-void hidden sepol_msg_default_handler(void *varg __attribute__ ((unused)),
+void hidden sepol_msg_default_handler(void *varg __attribute__((unused)),
 				      sepol_handle_t * handle,
 				      const char *fmt, ...)
 {
@@ -74,12 +72,12 @@ void hidden sepol_msg_default_handler(void *varg __attribute__ ((unused)),
 
 extern void sepol_msg_set_callback(sepol_handle_t * handle,
 #ifdef __GNUC__
-				   __attribute__ ((format(printf, 3, 4)))
+				   __attribute__((format(printf, 3, 4)))
 #endif
-				   void (*msg_callback) (void *varg,
-							 sepol_handle_t *
-							 handle,
-							 const char *fmt, ...),
+				   void (*msg_callback)(void *varg,
+							sepol_handle_t *
+							handle,
+							const char *fmt, ...),
 				   void *msg_callback_arg)
 {
 

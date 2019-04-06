@@ -10,7 +10,6 @@
 #endif
 #include <errno.h>
 
-
 #include "node_internal.h"
 #include "context_internal.h"
 #include "debug.h"
@@ -76,11 +75,7 @@ static int node_parse_addr(sepol_handle_t * handle,
 				return STATUS_ERR;
 			}
 
-#if 1
 			memcpy(addr_bytes, in_addr.s6_addr, 16);
-#else
-			memcpy(addr_bytes, in_addr.s6_addr32, 16);
-#endif
 			break;
 		}
 	default:
@@ -93,10 +88,10 @@ static int node_parse_addr(sepol_handle_t * handle,
 }
 
 /* Allocates a sufficiently large buffer (addr, addr_sz)
- * according the the protocol */
+ * according to the protocol */
 
 static int node_alloc_addr(sepol_handle_t * handle,
-			   int proto, char **addr, size_t * addr_sz)
+			   int proto, char **addr, size_t *addr_sz)
 {
 
 	char *tmp_addr = NULL;
@@ -127,10 +122,10 @@ static int node_alloc_addr(sepol_handle_t * handle,
 	*addr_sz = tmp_addr_sz;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory");
 
-      err:
+err:
 	free(tmp_addr);
 	ERR(handle, "could not allocate address of protocol %s",
 	    sepol_node_get_proto_str(proto));
@@ -168,11 +163,7 @@ static int node_expand_addr(sepol_handle_t * handle,
 		{
 			struct in6_addr addr;
 			memset(&addr, 0, sizeof(struct in6_addr));
-#if 1
 			memcpy(&addr.s6_addr[0], addr_bytes, 16);
-#else
-			memcpy(&addr.s6_addr32[0], addr_bytes, 16);
-#endif
 			if (inet_ntop(AF_INET6, &addr, addr_str,
 				      INET6_ADDRSTRLEN) == NULL) {
 
@@ -224,10 +215,10 @@ static int node_alloc_addr_string(sepol_handle_t * handle,
 	*addr = tmp_addr;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory");
 
-      err:
+err:
 	free(tmp_addr);
 	ERR(handle, "could not allocate string buffer for "
 	    "address of protocol %s", sepol_node_get_proto_str(proto));
@@ -263,10 +254,10 @@ int sepol_node_key_create(sepol_handle_t * handle,
 	*key_ptr = tmp_key;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory");
 
-      err:
+err:
 	sepol_node_key_free(tmp_key);
 	ERR(handle, "could not create node key for (%s, %s, %s)",
 	    addr, mask, sepol_node_get_proto_str(proto));
@@ -274,7 +265,6 @@ int sepol_node_key_create(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_node_key_create)
-
 void sepol_node_key_unpack(const sepol_node_key_t * key,
 			   const char **addr, const char **mask, int *proto)
 {
@@ -285,7 +275,6 @@ void sepol_node_key_unpack(const sepol_node_key_t * key,
 }
 
 hidden_def(sepol_node_key_unpack)
-
 int sepol_node_key_extract(sepol_handle_t * handle,
 			   const sepol_node_t * node,
 			   sepol_node_key_t ** key_ptr)
@@ -311,7 +300,7 @@ int sepol_node_key_extract(sepol_handle_t * handle,
 	*key_ptr = tmp_key;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	sepol_node_key_free(tmp_key);
 	ERR(handle, "out of memory, could not extract node key");
 	return STATUS_ERR;
@@ -329,7 +318,6 @@ void sepol_node_key_free(sepol_node_key_t * key)
 }
 
 hidden_def(sepol_node_key_free)
-
 int sepol_node_compare(const sepol_node_t * node, const sepol_node_key_t * key)
 {
 
@@ -383,17 +371,16 @@ int sepol_node_get_addr(sepol_handle_t * handle,
 	*addr = tmp_addr;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	free(tmp_addr);
 	ERR(handle, "could not get node address");
 	return STATUS_ERR;
 }
 
 hidden_def(sepol_node_get_addr)
-
 int sepol_node_get_addr_bytes(sepol_handle_t * handle,
 			      const sepol_node_t * node,
-			      char **buffer, size_t * bsize)
+			      char **buffer, size_t *bsize)
 {
 
 	char *tmp_buf = malloc(node->addr_sz);
@@ -409,7 +396,6 @@ int sepol_node_get_addr_bytes(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_node_get_addr_bytes)
-
 int sepol_node_set_addr(sepol_handle_t * handle,
 			sepol_node_t * node, int proto, const char *addr)
 {
@@ -428,14 +414,13 @@ int sepol_node_set_addr(sepol_handle_t * handle,
 	node->addr_sz = tmp_addr_sz;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	free(tmp_addr);
 	ERR(handle, "could not set node address to %s", addr);
 	return STATUS_ERR;
 }
 
 hidden_def(sepol_node_set_addr)
-
 int sepol_node_set_addr_bytes(sepol_handle_t * handle,
 			      sepol_node_t * node,
 			      const char *addr, size_t addr_sz)
@@ -455,7 +440,6 @@ int sepol_node_set_addr_bytes(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_node_set_addr_bytes)
-
 /* Mask */
 int sepol_node_get_mask(sepol_handle_t * handle,
 			const sepol_node_t * node, char **mask)
@@ -472,17 +456,16 @@ int sepol_node_get_mask(sepol_handle_t * handle,
 	*mask = tmp_mask;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	free(tmp_mask);
 	ERR(handle, "could not get node netmask");
 	return STATUS_ERR;
 }
 
 hidden_def(sepol_node_get_mask)
-
 int sepol_node_get_mask_bytes(sepol_handle_t * handle,
 			      const sepol_node_t * node,
-			      char **buffer, size_t * bsize)
+			      char **buffer, size_t *bsize)
 {
 
 	char *tmp_buf = malloc(node->mask_sz);
@@ -498,7 +481,6 @@ int sepol_node_get_mask_bytes(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_node_get_mask_bytes)
-
 int sepol_node_set_mask(sepol_handle_t * handle,
 			sepol_node_t * node, int proto, const char *mask)
 {
@@ -517,14 +499,13 @@ int sepol_node_set_mask(sepol_handle_t * handle,
 	node->mask_sz = tmp_mask_sz;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	free(tmp_mask);
 	ERR(handle, "could not set node netmask to %s", mask);
 	return STATUS_ERR;
 }
 
 hidden_def(sepol_node_set_mask)
-
 int sepol_node_set_mask_bytes(sepol_handle_t * handle,
 			      sepol_node_t * node,
 			      const char *mask, size_t mask_sz)
@@ -543,7 +524,6 @@ int sepol_node_set_mask_bytes(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_node_set_mask_bytes)
-
 /* Protocol */
 int sepol_node_get_proto(const sepol_node_t * node)
 {
@@ -552,7 +532,6 @@ int sepol_node_get_proto(const sepol_node_t * node)
 }
 
 hidden_def(sepol_node_get_proto)
-
 void sepol_node_set_proto(sepol_node_t * node, int proto)
 {
 
@@ -560,7 +539,6 @@ void sepol_node_set_proto(sepol_node_t * node, int proto)
 }
 
 hidden_def(sepol_node_set_proto)
-
 const char *sepol_node_get_proto_str(int proto)
 {
 
@@ -575,7 +553,6 @@ const char *sepol_node_get_proto_str(int proto)
 }
 
 hidden_def(sepol_node_get_proto_str)
-
 /* Create */
 int sepol_node_create(sepol_handle_t * handle, sepol_node_t ** node)
 {
@@ -599,7 +576,6 @@ int sepol_node_create(sepol_handle_t * handle, sepol_node_t ** node)
 }
 
 hidden_def(sepol_node_create)
-
 /* Deep copy clone */
 int sepol_node_clone(sepol_handle_t * handle,
 		     const sepol_node_t * node, sepol_node_t ** node_ptr)
@@ -629,10 +605,10 @@ int sepol_node_clone(sepol_handle_t * handle,
 	*node_ptr = new_node;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory");
 
-      err:
+err:
 	ERR(handle, "could not clone node record");
 	sepol_node_free(new_node);
 	return STATUS_ERR;
@@ -652,7 +628,6 @@ void sepol_node_free(sepol_node_t * node)
 }
 
 hidden_def(sepol_node_free)
-
 /* Context */
 sepol_context_t *sepol_node_get_con(const sepol_node_t * node)
 {
@@ -661,7 +636,6 @@ sepol_context_t *sepol_node_get_con(const sepol_node_t * node)
 }
 
 hidden_def(sepol_node_get_con)
-
 int sepol_node_set_con(sepol_handle_t * handle,
 		       sepol_node_t * node, sepol_context_t * con)
 {

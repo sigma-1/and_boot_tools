@@ -18,7 +18,6 @@
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "debug.h"
 #include <assert.h>
 #include <ctype.h>
 #include <stdarg.h>
@@ -117,9 +116,9 @@ char *sepol_av_to_string(policydb_t * policydbp, uint32_t tclass,
 			rc = hashtab_map(cladatum->permissions.table,
 					 perm_name, &v);
 			if (!rc && cladatum->comdatum) {
-				rc = hashtab_map(cladatum->comdatum->
-						 permissions.table, perm_name,
-						 &v);
+				rc = hashtab_map(cladatum->
+						 comdatum->permissions.table,
+						 perm_name, &v);
 			}
 			if (rc)
 				perm = v.name;
@@ -128,7 +127,7 @@ char *sepol_av_to_string(policydb_t * policydbp, uint32_t tclass,
 				    snprintf(p, sizeof(avbuf) - avlen, " %s",
 					     perm);
 				if (len < 0
-				    || (size_t) len >= (sizeof(avbuf) - avlen))
+				    || (size_t)len >= (sizeof(avbuf) - avlen))
 					return NULL;
 				p += len;
 				avlen += len;
@@ -141,7 +140,7 @@ char *sepol_av_to_string(policydb_t * policydbp, uint32_t tclass,
 
 #define next_bit_in_range(i, p) ((i + 1 < sizeof(p)*8) && xperm_test((i + 1), p))
 
-char *sepol_extended_perms_to_string(avtab_extended_perms_t *xperms)
+char *sepol_extended_perms_to_string(avtab_extended_perms_t * xperms)
 {
 	uint16_t value;
 	uint16_t low_bit;
@@ -155,14 +154,14 @@ char *sepol_extended_perms_to_string(avtab_extended_perms_t *xperms)
 	p = xpermsbuf;
 
 	if ((xperms->specified != AVTAB_XPERMS_IOCTLFUNCTION)
-		&& (xperms->specified != AVTAB_XPERMS_IOCTLDRIVER))
+	    && (xperms->specified != AVTAB_XPERMS_IOCTLDRIVER))
 		return NULL;
 
 	len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "ioctl { ");
 	p += len;
 	xpermslen += len;
 
-	for (bit = 0; bit < sizeof(xperms->perms)*8; bit++) {
+	for (bit = 0; bit < sizeof(xperms->perms) * 8; bit++) {
 		if (!xperm_test(bit, xperms->perms))
 			continue;
 
@@ -177,25 +176,35 @@ char *sepol_extended_perms_to_string(avtab_extended_perms_t *xperms)
 		}
 
 		if (xperms->specified & AVTAB_XPERMS_IOCTLFUNCTION) {
-			value = xperms->driver<<8 | bit;
-			low_value = xperms->driver<<8 | low_bit;
+			value = xperms->driver << 8 | bit;
 			if (in_range) {
-				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx-0x%hx ", low_value, value);
+				low_value = xperms->driver << 8 | low_bit;
+				len =
+				    snprintf(p, sizeof(xpermsbuf) - xpermslen,
+					     "0x%hx-0x%hx ", low_value, value);
 			} else {
-				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx ", value);
+				len =
+				    snprintf(p, sizeof(xpermsbuf) - xpermslen,
+					     "0x%hx ", value);
 			}
 		} else if (xperms->specified & AVTAB_XPERMS_IOCTLDRIVER) {
 			value = bit << 8;
-			low_value = low_bit << 8;
 			if (in_range) {
-				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx-0x%hx ", low_value, (uint16_t) (value|0xff));
+				low_value = low_bit << 8;
+				len =
+				    snprintf(p, sizeof(xpermsbuf) - xpermslen,
+					     "0x%hx-0x%hx ", low_value,
+					     (uint16_t) (value | 0xff));
 			} else {
-				len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "0x%hx-0x%hx ", value, (uint16_t) (value|0xff));
+				len =
+				    snprintf(p, sizeof(xpermsbuf) - xpermslen,
+					     "0x%hx-0x%hx ", value,
+					     (uint16_t) (value | 0xff));
 			}
 
 		}
 
-		if (len < 0 || (size_t) len >= (sizeof(xpermsbuf) - xpermslen))
+		if (len < 0 || (size_t)len >= (sizeof(xpermsbuf) - xpermslen))
 			return NULL;
 
 		p += len;
@@ -205,7 +214,7 @@ char *sepol_extended_perms_to_string(avtab_extended_perms_t *xperms)
 	}
 
 	len = snprintf(p, sizeof(xpermsbuf) - xpermslen, "}");
-	if (len < 0 || (size_t) len >= (sizeof(xpermsbuf) - xpermslen))
+	if (len < 0 || (size_t)len >= (sizeof(xpermsbuf) - xpermslen))
 		return NULL;
 
 	return xpermsbuf;

@@ -42,10 +42,10 @@ static int bool_update(sepol_handle_t * handle,
 	datum->state = value;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory");
 
-      err:
+err:
 	free(name);
 	ERR(handle, "could not update boolean %s", cname);
 	return STATUS_ERR;
@@ -73,7 +73,7 @@ static int bool_to_record(sepol_handle_t * handle,
 	*record = tmp_record;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not convert boolean %s to record", name);
 	sepol_bool_free(tmp_record);
 	return STATUS_ERR;
@@ -98,12 +98,12 @@ int sepol_bool_set(sepol_handle_t * handle,
 
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not set boolean %s", name);
 	return STATUS_ERR;
 }
 
-int sepol_bool_count(sepol_handle_t * handle __attribute__ ((unused)),
+int sepol_bool_count(sepol_handle_t * handle __attribute__((unused)),
 		     const sepol_policydb_t * p, unsigned int *response)
 {
 
@@ -155,6 +155,7 @@ int sepol_bool_query(sepol_handle_t * handle,
 	booldatum = hashtab_search(policydb->p_bools.table, name);
 	if (!booldatum) {
 		*response = NULL;
+		free(name);
 		return STATUS_SUCCESS;
 	}
 
@@ -165,10 +166,10 @@ int sepol_bool_query(sepol_handle_t * handle,
 	free(name);
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory");
 
-      err:
+err:
 	ERR(handle, "could not query boolean %s", cname);
 	free(name);
 	return STATUS_ERR;
@@ -176,8 +177,8 @@ int sepol_bool_query(sepol_handle_t * handle,
 
 int sepol_bool_iterate(sepol_handle_t * handle,
 		       const sepol_policydb_t * p,
-		       int (*fn) (const sepol_bool_t * boolean,
-				  void *fn_arg), void *arg)
+		       int (*fn)(const sepol_bool_t * boolean,
+				 void *fn_arg), void *arg)
 {
 
 	const policydb_t *policydb = &p->p;
@@ -208,7 +209,7 @@ int sepol_bool_iterate(sepol_handle_t * handle,
 
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not iterate over booleans");
 	sepol_bool_free(boolean);
 	return STATUS_ERR;

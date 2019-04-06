@@ -48,7 +48,6 @@ int sepol_iface_key_create(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_iface_key_create)
-
 void sepol_iface_key_unpack(const sepol_iface_key_t * key, const char **name)
 {
 
@@ -56,7 +55,6 @@ void sepol_iface_key_unpack(const sepol_iface_key_t * key, const char **name)
 }
 
 hidden_def(sepol_iface_key_unpack)
-
 int sepol_iface_key_extract(sepol_handle_t * handle,
 			    const sepol_iface_t * iface,
 			    sepol_iface_key_t ** key_ptr)
@@ -73,6 +71,8 @@ int sepol_iface_key_extract(sepol_handle_t * handle,
 
 void sepol_iface_key_free(sepol_iface_key_t * key)
 {
+	if (!key)
+		return;
 	free(key->name);
 	free(key);
 }
@@ -113,7 +113,6 @@ int sepol_iface_create(sepol_handle_t * handle, sepol_iface_t ** iface)
 }
 
 hidden_def(sepol_iface_create)
-
 /* Name */
 const char *sepol_iface_get_name(const sepol_iface_t * iface)
 {
@@ -122,7 +121,6 @@ const char *sepol_iface_get_name(const sepol_iface_t * iface)
 }
 
 hidden_def(sepol_iface_get_name)
-
 int sepol_iface_set_name(sepol_handle_t * handle,
 			 sepol_iface_t * iface, const char *name)
 {
@@ -138,7 +136,6 @@ int sepol_iface_set_name(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_iface_set_name)
-
 /* Interface Context */
 sepol_context_t *sepol_iface_get_ifcon(const sepol_iface_t * iface)
 {
@@ -147,7 +144,6 @@ sepol_context_t *sepol_iface_get_ifcon(const sepol_iface_t * iface)
 }
 
 hidden_def(sepol_iface_get_ifcon)
-
 int sepol_iface_set_ifcon(sepol_handle_t * handle,
 			  sepol_iface_t * iface, sepol_context_t * con)
 {
@@ -165,7 +161,6 @@ int sepol_iface_set_ifcon(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_iface_set_ifcon)
-
 /* Message Context */
 sepol_context_t *sepol_iface_get_msgcon(const sepol_iface_t * iface)
 {
@@ -174,7 +169,6 @@ sepol_context_t *sepol_iface_get_msgcon(const sepol_iface_t * iface)
 }
 
 hidden_def(sepol_iface_get_msgcon)
-
 int sepol_iface_set_msgcon(sepol_handle_t * handle,
 			   sepol_iface_t * iface, sepol_context_t * con)
 {
@@ -191,7 +185,6 @@ int sepol_iface_set_msgcon(sepol_handle_t * handle,
 }
 
 hidden_def(sepol_iface_set_msgcon)
-
 /* Deep copy clone */
 int sepol_iface_clone(sepol_handle_t * handle,
 		      const sepol_iface_t * iface, sepol_iface_t ** iface_ptr)
@@ -217,7 +210,7 @@ int sepol_iface_clone(sepol_handle_t * handle,
 	*iface_ptr = new_iface;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not clone interface record");
 	sepol_iface_free(new_iface);
 	return STATUS_ERR;

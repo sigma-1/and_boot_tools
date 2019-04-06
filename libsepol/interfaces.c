@@ -47,10 +47,10 @@ static int iface_from_record(sepol_handle_t * handle,
 	*iface = tmp_iface;
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory");
 
-      err:
+err:
 	if (tmp_iface != NULL) {
 		free(tmp_iface->u.name);
 		context_destroy(&tmp_iface->context[0]);
@@ -98,7 +98,7 @@ static int iface_to_record(sepol_handle_t * handle,
 	*record = tmp_record;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not convert interface %s to record", name);
 	sepol_context_free(tmp_con);
 	sepol_iface_free(tmp_record);
@@ -106,7 +106,7 @@ static int iface_to_record(sepol_handle_t * handle,
 }
 
 /* Check if an interface exists */
-int sepol_iface_exists(sepol_handle_t * handle __attribute__ ((unused)),
+int sepol_iface_exists(sepol_handle_t * handle __attribute__((unused)),
 		       const sepol_policydb_t * p,
 		       const sepol_iface_key_t * key, int *response)
 {
@@ -155,7 +155,7 @@ int sepol_iface_query(sepol_handle_t * handle,
 	*response = NULL;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not query interface %s", name);
 	return STATUS_ERR;
 }
@@ -202,7 +202,7 @@ int sepol_iface_modify(sepol_handle_t * handle,
 	policydb->ocontexts[OCON_NETIF] = iface;
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "error while loading interface %s", name);
 
 	if (iface != NULL) {
@@ -215,7 +215,7 @@ int sepol_iface_modify(sepol_handle_t * handle,
 }
 
 /* Return the number of interfaces */
-extern int sepol_iface_count(sepol_handle_t * handle __attribute__ ((unused)),
+extern int sepol_iface_count(sepol_handle_t * handle __attribute__((unused)),
 			     const sepol_policydb_t * p, unsigned int *response)
 {
 
@@ -234,8 +234,8 @@ extern int sepol_iface_count(sepol_handle_t * handle __attribute__ ((unused)),
 
 int sepol_iface_iterate(sepol_handle_t * handle,
 			const sepol_policydb_t * p,
-			int (*fn) (const sepol_iface_t * iface,
-				   void *fn_arg), void *arg)
+			int (*fn)(const sepol_iface_t * iface,
+				  void *fn_arg), void *arg)
 {
 
 	const policydb_t *policydb = &p->p;
@@ -264,7 +264,7 @@ int sepol_iface_iterate(sepol_handle_t * handle,
 
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	ERR(handle, "could not iterate over interfaces");
 	sepol_iface_free(iface);
 	return STATUS_ERR;

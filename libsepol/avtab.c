@@ -1,5 +1,5 @@
 
-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
 
 /*
  * Updated: Yuichi Nakamura <ynakam@hitachisoft.jp>
@@ -58,8 +58,8 @@ static inline int avtab_hash(struct avtab_key *keyp, uint32_t mask)
 	static const uint32_t c2 = 0x1b873593;
 	static const uint32_t r1 = 15;
 	static const uint32_t r2 = 13;
-	static const uint32_t m  = 5;
-	static const uint32_t n  = 0xe6546b64;
+	static const uint32_t m = 5;
+	static const uint32_t n = 0xe6546b64;
 
 	uint32_t hash = 0;
 
@@ -107,7 +107,7 @@ avtab_insert_node(avtab_t * h, int hvalue, avtab_ptr_t prev, avtab_key_t * key,
 			free(newnode);
 			return NULL;
 		}
-		if (datum->xperms) /* else caller populates xperms */
+		if (datum->xperms)	/* else caller populates xperms */
 			*xperms = *(datum->xperms);
 
 		newnode->datum.xperms = xperms;
@@ -330,8 +330,8 @@ void avtab_destroy(avtab_t * h)
 }
 
 int avtab_map(avtab_t * h,
-	      int (*apply) (avtab_key_t * k,
-			    avtab_datum_t * d, void *args), void *args)
+	      int (*apply)(avtab_key_t * k,
+			   avtab_datum_t * d, void *args), void *args)
 {
 	unsigned int i;
 	int ret;
@@ -359,7 +359,7 @@ int avtab_init(avtab_t * h)
 	return 0;
 }
 
-int avtab_alloc(avtab_t *h, uint32_t nrules)
+int avtab_alloc(avtab_t * h, uint32_t nrules)
 {
 	uint32_t mask = 0;
 	uint32_t shift = 0;
@@ -370,7 +370,7 @@ int avtab_alloc(avtab_t *h, uint32_t nrules)
 		goto out;
 
 	while (work) {
-		work  = work >> 1;
+		work = work >> 1;
 		shift++;
 	}
 	if (shift > 2)
@@ -431,8 +431,8 @@ static uint16_t spec_order[] = {
 };
 
 int avtab_read_item(struct policy_file *fp, uint32_t vers, avtab_t * a,
-		    int (*insertf) (avtab_t * a, avtab_key_t * k,
-				    avtab_datum_t * d, void *p), void *p)
+		    int (*insertf)(avtab_t * a, avtab_key_t * k,
+				   avtab_datum_t * d, void *p), void *p)
 {
 	uint8_t buf8;
 	uint16_t buf16[4], enabled;
@@ -540,9 +540,9 @@ int avtab_read_item(struct policy_file *fp, uint32_t vers, avtab_t * a,
 	}
 
 	if ((vers < POLICYDB_VERSION_XPERMS_IOCTL) &&
-			(key.specified & AVTAB_XPERMS)) {
+	    (key.specified & AVTAB_XPERMS)) {
 		ERR(fp->handle, "policy version %u does not support extended "
-				"permissions rules and one was specified\n", vers);
+		    "permissions rules and one was specified\n", vers);
 		return -1;
 	} else if (key.specified & AVTAB_XPERMS) {
 		rc = next_entry(&buf8, fp, sizeof(uint8_t));
@@ -553,7 +553,7 @@ int avtab_read_item(struct policy_file *fp, uint32_t vers, avtab_t * a,
 		xperms.specified = buf8;
 
 		if (xperms.specified != AVTAB_XPERMS_IOCTLFUNCTION &&
-			xperms.specified != AVTAB_XPERMS_IOCTLDRIVER) {
+		    xperms.specified != AVTAB_XPERMS_IOCTLDRIVER) {
 			xperms.driver = xperms.specified;
 			xperms.specified = 0;
 		} else {
@@ -564,7 +564,7 @@ int avtab_read_item(struct policy_file *fp, uint32_t vers, avtab_t * a,
 			}
 			xperms.driver = buf8;
 		}
-		rc = next_entry(buf32, fp, sizeof(uint32_t)*8);
+		rc = next_entry(buf32, fp, sizeof(uint32_t) * 8);
 		if (rc < 0) {
 			ERR(fp->handle, "truncated entry");
 			return -1;
@@ -584,7 +584,7 @@ int avtab_read_item(struct policy_file *fp, uint32_t vers, avtab_t * a,
 }
 
 static int avtab_insertf(avtab_t * a, avtab_key_t * k, avtab_datum_t * d,
-			 void *p __attribute__ ((unused)))
+			 void *p __attribute__((unused)))
 {
 	return avtab_insert(a, k, d);
 }
@@ -631,7 +631,7 @@ int avtab_read(avtab_t * a, struct policy_file *fp, uint32_t vers)
 
 	return 0;
 
-      bad:
+bad:
 	avtab_destroy(a);
 	return -1;
 }

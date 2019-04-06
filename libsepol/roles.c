@@ -8,7 +8,7 @@
 #include "handle.h"
 
 /* Check if a role exists */
-int sepol_role_exists(sepol_handle_t * handle __attribute__ ((unused)),
+int sepol_role_exists(sepol_handle_t * handle __attribute__((unused)),
 		      sepol_policydb_t * p, const char *role, int *response)
 {
 
@@ -42,7 +42,7 @@ int sepol_role_list(sepol_handle_t * handle,
 
 	return STATUS_SUCCESS;
 
-      omem:
+omem:
 	ERR(handle, "out of memory, could not list roles");
 
 	ptr = tmp_roles;

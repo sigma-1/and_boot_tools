@@ -20,13 +20,13 @@
 #define _SEPOL_INTERNAL_DEBUG_H_
 
 #ifdef _WIN32
-#define __attribute__(a) /* unused */
-#define __attribute(a) /* unused */
-#define IPPROTO_DCCP 33  /* Datagram Congestion Control Protocol */
+#define __attribute__(a)	/* unused */
+#define __attribute(a)		/* unused */
+#define IPPROTO_DCCP 33		/* Datagram Congestion Control Protocol */
 #define PATH_MAX 256
 #define ssize_t size_t
 #define strncasecmp _strnicmp
-#define strcasecmp _stricmp 
+#define strcasecmp _stricmp
 #define strtok_r strtok_s
 #endif
 
@@ -59,7 +59,8 @@
 		}                                                  \
 	} while(0)
 #else
-void msg_write(sepol_handle_t *handle, int severity, const  char *label, const char *func, const char* format, ...);
+void msg_write(sepol_handle_t * handle, int severity, const char *label,
+	       const char *func, const char *format, ...);
 #endif
 
 #define ERR(handle, ...) \
@@ -76,7 +77,7 @@ void msg_write(sepol_handle_t *handle, int severity, const  char *label, const c
 
 #ifdef DEBUG
 #ifdef __GNUC__
-__attribute__ ((format(printf, 3, 4)))
+__attribute__((format(printf, 3, 4)))
 #endif
 extern void hidden sepol_msg_default_handler(void *varg,
 					     sepol_handle_t * msg,

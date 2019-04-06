@@ -124,7 +124,7 @@ int cond_expr_equal(cond_node_t * a, cond_node_t * b)
 		if (cur_a->expr_type != cur_b->expr_type)
 			return 0;
 		if (cur_a->expr_type == COND_BOOL) {
-			if (cur_a->bool != cur_b->bool)
+			if (cur_a->bool !=cur_b->bool)
 				return 0;
 		}
 		cur_a = cur_a->next;
@@ -143,7 +143,7 @@ cond_node_t *cond_node_create(policydb_t * p, cond_node_t * node)
 	cond_node_t *new_node;
 	unsigned int i;
 
-	new_node = (cond_node_t *)malloc(sizeof(cond_node_t));
+	new_node = (cond_node_t *) malloc(sizeof(cond_node_t));
 	if (!new_node) {
 		return NULL;
 	}
@@ -222,7 +222,7 @@ int cond_evaluate_expr(policydb_t * p, cond_expr_t * expr)
 			if (sp == (COND_EXPR_MAXDEPTH - 1))
 				return -1;
 			sp++;
-			s[sp] = p->bool_val_to_struct[cur->bool - 1]->state;
+			s[sp] = p->bool_val_to_struct[cur->bool -1]->state;
 			break;
 		case COND_NOT:
 			if (sp < 0)
@@ -289,7 +289,7 @@ cond_expr_t *cond_copy_expr(cond_expr_t * expr)
 	}
 	return head;
 
-      free_head:
+free_head:
 	while (head) {
 		tail = head->next;
 		free(head);
@@ -532,7 +532,7 @@ int cond_init_bool_indexes(policydb_t * p)
 }
 
 int cond_destroy_bool(hashtab_key_t key, hashtab_datum_t datum, void *p
-		      __attribute__ ((unused)))
+		      __attribute__((unused)))
 {
 	if (key)
 		free(key);
@@ -567,9 +567,7 @@ static int bool_isvalid(cond_bool_datum_t * b)
 	return 1;
 }
 
-int cond_read_bool(policydb_t * p,
-		   hashtab_t h,
-		   struct policy_file *fp)
+int cond_read_bool(policydb_t * p, hashtab_t h, struct policy_file *fp)
 {
 	char *key = 0;
 	cond_bool_datum_t *booldatum;
@@ -607,7 +605,7 @@ int cond_read_bool(policydb_t * p,
 		goto err;
 
 	return 0;
-      err:
+err:
 	cond_destroy_bool(key, booldatum, 0);
 	return -1;
 }
@@ -620,7 +618,7 @@ struct cond_insertf_data {
 };
 
 static int cond_insertf(avtab_t * a
-			__attribute__ ((unused)), avtab_key_t * k,
+			__attribute__((unused)), avtab_key_t * k,
 			avtab_datum_t * d, void *ptr)
 {
 	struct cond_insertf_data *data = ptr;
@@ -699,7 +697,7 @@ static int cond_insertf(avtab_t * a
 	data->tail = list;
 	return 0;
 
-      err:
+err:
 	cond_av_list_destroy(data->head);
 	data->head = NULL;
 	return -1;
@@ -749,7 +747,7 @@ static int expr_isvalid(policydb_t * p, cond_expr_t * expr)
 		return 0;
 	}
 
-	if (expr->bool > p->p_bools.nprim) {
+	if (expr->bool >p->p_bools.nprim) {
 		printf
 		    ("security: conditional expressions uses unknown bool.\n");
 		return 0;
@@ -826,7 +824,7 @@ static int cond_read_node(policydb_t * p, cond_node_t * node, void *fp)
 	}
 
 	return 0;
-      err:
+err:
 	cond_node_destroy(node);
 	free(node);
 	return -1;
@@ -865,7 +863,7 @@ int cond_read_list(policydb_t * p, cond_list_t ** list, void *fp)
 		last = node;
 	}
 	return 0;
-      err:
+err:
 	return -1;
 }
 
@@ -911,7 +909,6 @@ avtab_datum_t *cond_av_list_search(avtab_key_t * key,
 		if (cur_av->node->key.source_type == key->source_type &&
 		    cur_av->node->key.target_type == key->target_type &&
 		    cur_av->node->key.target_class == key->target_class)
-
 			return &cur_av->node->datum;
 
 	}

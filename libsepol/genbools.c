@@ -34,31 +34,42 @@ static int process_boolean(char *buffer, char *name, int namesize, int *val)
 {
 	char name1[BUFSIZ];
 	char *ptr = NULL;
-	char *tok = strtok_r(buffer, "=", &ptr);
-	if (tok) {
-		strncpy(name1, tok, BUFSIZ - 1);
-		strtrim(name, name1, namesize - 1);
-		if (name[0] == '#')
-			return 0;
-		tok = strtok_r(NULL, "\0", &ptr);
-		if (tok) {
-			while (isspace(*tok))
-				tok++;
-			*val = -1;
-			if (isdigit(tok[0]))
-				*val = atoi(tok);
-			else if (!strncasecmp(tok, "true", sizeof("true") - 1))
-				*val = 1;
-			else if (!strncasecmp
-				 (tok, "false", sizeof("false") - 1))
-				*val = 0;
-			if (*val != 0 && *val != 1) {
-				ERR(NULL, "illegal value for boolean "
-				    "%s=%s", name, tok);
-				return -1;
-			}
+	char *tok;
 
-		}
+	/* Skip spaces */
+	while (isspace(buffer[0]))
+		buffer++;
+	/* Ignore comments */
+	if (buffer[0] == '#')
+		return 0;
+
+	tok = strtok_r(buffer, "=", &ptr);
+	if (!tok) {
+		ERR(NULL, "illegal boolean definition %s", buffer);
+		return -1;
+	}
+	strncpy(name1, tok, BUFSIZ - 1);
+	strtrim(name, name1, namesize - 1);
+
+	tok = strtok_r(NULL, "\0", &ptr);
+	if (!tok) {
+		ERR(NULL, "illegal boolean definition %s=%s", name, buffer);
+		return -1;
+	}
+
+	while (isspace(*tok))
+		tok++;
+
+	*val = -1;
+	if (isdigit(tok[0]))
+		*val = atoi(tok);
+	else if (!strncasecmp(tok, "true", sizeof("true") - 1))
+		*val = 1;
+	else if (!strncasecmp(tok, "false", sizeof("false") - 1))
+		*val = 0;
+	if (*val != 0 && *val != 1) {
+		ERR(NULL, "illegal value for boolean %s=%s", name, tok);
+		return -1;
 	}
 	return 1;
 }
@@ -78,13 +89,13 @@ static int load_booleans(struct policydb *policydb, const char *path,
 	if (boolf == NULL)
 		goto localbool;
 
-#if 1
-        if ((buffer = (char *)malloc(255 * sizeof(char))) == NULL) {
-          ERR(NULL, "out of memory");
-	  return -1;
+#ifdef __APPLE__
+	if ((buffer = (char *)malloc(255 * sizeof(char))) == NULL) {
+		ERR(NULL, "out of memory");
+		return -1;
 	}
 
-        while(fgets(buffer, 255, boolf) != NULL) {
+	while (fgets(buffer, 255, boolf) != NULL) {
 #else
 	size_t size = 0;
 	while (getline(&buffer, &size, boolf) > 0) {
@@ -106,17 +117,17 @@ static int load_booleans(struct policydb *policydb, const char *path,
 		}
 	}
 	fclose(boolf);
-      localbool:
+localbool:
 	snprintf(localbools, sizeof(localbools), "%s.local", path);
 	boolf = fopen(localbools, "r");
 	if (boolf != NULL) {
 
-#if 1
+#ifdef __APPLE__
 
-	  while(fgets(buffer, 255, boolf) != NULL) {
+		while (fgets(buffer, 255, boolf) != NULL) {
 #else
 
-	    while (getline(&buffer, &size, boolf) > 0) {
+		while (getline(&buffer, &size, boolf) > 0) {
 #endif
 			int ret =
 			    process_boolean(buffer, name, sizeof(name), &val);
@@ -146,7 +157,7 @@ static int load_booleans(struct policydb *policydb, const char *path,
 	return errors ? -1 : 0;
 }
 
-int sepol_genbools(void *data, size_t len, char *booleans)
+int sepol_genbools(void *data, size_t len, const char *booleans)
 {
 	struct policydb policydb;
 	struct policy_file pf;
@@ -181,14 +192,14 @@ int sepol_genbools(void *data, size_t len, char *booleans)
 		goto err_destroy;
 	}
 
-      out:
+out:
 	policydb_destroy(&policydb);
 	return 0;
 
-      err_destroy:
+err_destroy:
 	policydb_destroy(&policydb);
 
-      err:
+err:
 	return -1;
 }
 
@@ -260,9 +271,9 @@ int sepol_genbools_array(void *data, size_t len, char **names, int *values,
 	policydb_destroy(&policydb);
 	return 0;
 
-      err_destroy:
+err_destroy:
 	policydb_destroy(&policydb);
 
-      err:
+err:
 	return -1;
 }

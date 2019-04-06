@@ -1,5 +1,5 @@
 
-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
 
 /* FLASK */
 
@@ -71,11 +71,11 @@ int ebitmap_union(ebitmap_t * dst, const ebitmap_t * e1)
 	return 0;
 }
 
-int ebitmap_and(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2)
+int ebitmap_and(ebitmap_t * dst, ebitmap_t * e1, ebitmap_t * e2)
 {
 	unsigned int i, length = min(ebitmap_length(e1), ebitmap_length(e2));
 	ebitmap_init(dst);
-	for (i=0; i < length; i++) {
+	for (i = 0; i < length; i++) {
 		if (ebitmap_get_bit(e1, i) && ebitmap_get_bit(e2, i)) {
 			int rc = ebitmap_set_bit(dst, i, 1);
 			if (rc < 0)
@@ -85,11 +85,11 @@ int ebitmap_and(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2)
 	return 0;
 }
 
-int ebitmap_xor(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2)
+int ebitmap_xor(ebitmap_t * dst, ebitmap_t * e1, ebitmap_t * e2)
 {
 	unsigned int i, length = max(ebitmap_length(e1), ebitmap_length(e2));
 	ebitmap_init(dst);
-	for (i=0; i < length; i++) {
+	for (i = 0; i < length; i++) {
 		int val = ebitmap_get_bit(e1, i) ^ ebitmap_get_bit(e2, i);
 		int rc = ebitmap_set_bit(dst, i, val);
 		if (rc < 0)
@@ -98,11 +98,11 @@ int ebitmap_xor(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2)
 	return 0;
 }
 
-int ebitmap_not(ebitmap_t *dst, ebitmap_t *e1, unsigned int maxbit)
+int ebitmap_not(ebitmap_t * dst, ebitmap_t * e1, unsigned int maxbit)
 {
 	unsigned int i;
 	ebitmap_init(dst);
-	for (i=0; i < maxbit; i++) {
+	for (i = 0; i < maxbit; i++) {
 		int val = ebitmap_get_bit(e1, i);
 		int rc = ebitmap_set_bit(dst, i, !val);
 		if (rc < 0)
@@ -111,7 +111,8 @@ int ebitmap_not(ebitmap_t *dst, ebitmap_t *e1, unsigned int maxbit)
 	return 0;
 }
 
-int ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2, unsigned int maxbit)
+int ebitmap_andnot(ebitmap_t * dst, ebitmap_t * e1, ebitmap_t * e2,
+		   unsigned int maxbit)
 {
 	ebitmap_t e3;
 	ebitmap_init(dst);
@@ -125,10 +126,10 @@ int ebitmap_andnot(ebitmap_t *dst, ebitmap_t *e1, ebitmap_t *e2, unsigned int ma
 	return 0;
 }
 
-unsigned int ebitmap_cardinality(ebitmap_t *e1)
+unsigned int ebitmap_cardinality(ebitmap_t * e1)
 {
 	unsigned int i, count = 0;
-	for (i=ebitmap_startbit(e1); i < ebitmap_length(e1); i++)
+	for (i = ebitmap_startbit(e1); i < ebitmap_length(e1); i++)
 		if (ebitmap_get_bit(e1, i))
 			count++;
 	return count;
@@ -224,7 +225,7 @@ int ebitmap_contains(const ebitmap_t * e1, const ebitmap_t * e2)
 	return 1;
 }
 
-int ebitmap_match_any(const ebitmap_t *e1, const ebitmap_t *e2)
+int ebitmap_match_any(const ebitmap_t * e1, const ebitmap_t * e2)
 {
 	ebitmap_node_t *n1 = e1->node;
 	ebitmap_node_t *n2 = e2->node;
@@ -460,13 +461,13 @@ int ebitmap_read(ebitmap_t * e, void *fp)
 		goto bad;
 	}
 
-      ok:
+ok:
 	rc = 0;
-      out:
+out:
 	return rc;
-      bad_free:
+bad_free:
 	free(n);
-      bad:
+bad:
 	if (!rc)
 		rc = -EINVAL;
 	ebitmap_destroy(e);

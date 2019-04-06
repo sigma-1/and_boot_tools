@@ -1,6 +1,6 @@
 
 /*
- * Author : Stephen Smalley, <sds@epoch.ncsc.mil> 
+ * Author : Stephen Smalley, <sds@tycho.nsa.gov>
  */
 /*
  * Updated: Trusted Computer Solutions, Inc. <dgoeddel@trustedcs.com>
@@ -21,6 +21,7 @@
  * Copyright (C) 2004-2005 Trusted Computer Solutions, Inc.
  * Copyright (C) 2003 - 2004 Tresys Technology, LLC
  * Copyright (C) 2003 - 2004 Red Hat, Inc.
+ * Copyright (C) 2017 Mellanox Technologies Inc.
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public
@@ -122,6 +123,7 @@ static char *pop(void)
 	}
 	return stack[next_stack_entry];
 }
+
 /* End Stack services */
 
 int hidden sepol_set_sidtab(sidtab_t * s)
@@ -212,8 +214,8 @@ static void cat_expr_buf(char *e_buf, const char *string)
  * For user and role plus types (for policy vers <
  * POLICYDB_VERSION_CONSTRAINT_NAMES) just read the e->names list.
  */
-static void get_name_list(constraint_expr_t *e, int type,
-							const char *src, const char *op, int failed)
+static void get_name_list(constraint_expr_t * e, int type,
+			  const char *src, const char *op, int failed)
 {
 	ebitmap_t *types;
 	int rc = 0;
@@ -222,8 +224,8 @@ static void get_name_list(constraint_expr_t *e, int type,
 	int counter = 0;
 
 	if (policydb->policy_type == POLICY_KERN &&
-			policydb->policyvers >= POLICYDB_VERSION_CONSTRAINT_NAMES &&
-			type == CEXPR_TYPE)
+	    policydb->policyvers >= POLICYDB_VERSION_CONSTRAINT_NAMES &&
+	    type == CEXPR_TYPE)
 		types = &e->type_names->types;
 	else
 		types = &e->names;
@@ -244,7 +246,8 @@ static void get_name_list(constraint_expr_t *e, int type,
 	if (counter > 1)
 		cat_expr_buf(expr_list[expr_counter], " {");
 	if (counter >= 1) {
-		for (i = ebitmap_startbit(types); i < ebitmap_length(types); i++) {
+		for (i = ebitmap_startbit(types); i < ebitmap_length(types);
+		     i++) {
 			rc = ebitmap_get_bit(types, i);
 			if (rc == 0)
 				continue;
@@ -253,15 +256,15 @@ static void get_name_list(constraint_expr_t *e, int type,
 			switch (type) {
 			case CEXPR_USER:
 				snprintf(tmp_buf, sizeof(tmp_buf), " %s",
-							policydb->p_user_val_to_name[i]);
+					 policydb->p_user_val_to_name[i]);
 				break;
 			case CEXPR_ROLE:
 				snprintf(tmp_buf, sizeof(tmp_buf), " %s",
-							policydb->p_role_val_to_name[i]);
+					 policydb->p_role_val_to_name[i]);
 				break;
 			case CEXPR_TYPE:
 				snprintf(tmp_buf, sizeof(tmp_buf), " %s",
-							policydb->p_type_val_to_name[i]);
+					 policydb->p_type_val_to_name[i]);
 				break;
 			}
 			cat_expr_buf(expr_list[expr_counter], tmp_buf);
@@ -282,17 +285,16 @@ static void msgcat(const char *src, const char *tgt, const char *op, int failed)
 	char tmp_buf[128];
 	if (failed)
 		snprintf(tmp_buf, sizeof(tmp_buf), "(%s %s %s -Fail-) ",
-				src, op, tgt);
+			 src, op, tgt);
 	else
-		snprintf(tmp_buf, sizeof(tmp_buf), "(%s %s %s) ",
-				src, op, tgt);
+		snprintf(tmp_buf, sizeof(tmp_buf), "(%s %s %s) ", src, op, tgt);
 	cat_expr_buf(expr_list[expr_counter], tmp_buf);
 }
 
 /* Returns a buffer with class, statement type and permissions */
 static char *get_class_info(sepol_security_class_t tclass,
-							constraint_node_t *constraint,
-							context_struct_t *xcontext)
+			    constraint_node_t * constraint,
+			    context_struct_t * xcontext)
 {
 	constraint_expr_t *e;
 	int mls, state_num;
@@ -308,11 +310,12 @@ static char *get_class_info(sepol_security_class_t tclass,
 
 	/* Determine statement type */
 	const char *statements[] = {
-		"constrain ",			/* 0 */
-		"mlsconstrain ",		/* 1 */
-		"validatetrans ",		/* 2 */
+		"constrain ",	/* 0 */
+		"mlsconstrain ",	/* 1 */
+		"validatetrans ",	/* 2 */
 		"mlsvalidatetrans ",	/* 3 */
-		0 };
+		0
+	};
 
 	if (xcontext == NULL)
 		state_num = mls + 0;
@@ -328,15 +331,17 @@ static char *get_class_info(sepol_security_class_t tclass,
 	while (1) {
 		new_class_buf_len = class_buf_len + EXPR_BUF_SIZE;
 		new_class_buf = realloc(class_buf, new_class_buf_len);
-			if (!new_class_buf)
-				return NULL;
+		if (!new_class_buf)
+			return NULL;
 		class_buf_len = new_class_buf_len;
 		class_buf = new_class_buf;
 		buf_used = 0;
 		p = class_buf;
 
 		/* Add statement type */
-		len = snprintf(p, class_buf_len - buf_used, "%s", statements[state_num]);
+		len =
+		    snprintf(p, class_buf_len - buf_used, "%s",
+			     statements[state_num]);
 		if (len < 0 || len >= class_buf_len - buf_used)
 			continue;
 
@@ -344,7 +349,7 @@ static char *get_class_info(sepol_security_class_t tclass,
 		p += len;
 		buf_used += len;
 		len = snprintf(p, class_buf_len - buf_used, "%s ",
-				policydb->p_class_val_to_name[tclass - 1]);
+			       policydb->p_class_val_to_name[tclass - 1]);
 		if (len < 0 || len >= class_buf_len - buf_used)
 			continue;
 
@@ -353,8 +358,9 @@ static char *get_class_info(sepol_security_class_t tclass,
 		buf_used += len;
 		if (state_num < 2) {
 			len = snprintf(p, class_buf_len - buf_used, "{%s } (",
-			sepol_av_to_string(policydb, tclass,
-				constraint->permissions));
+				       sepol_av_to_string(policydb, tclass,
+							  constraint->
+							  permissions));
 		} else {
 			len = snprintf(p, class_buf_len - buf_used, "(");
 		}
@@ -386,13 +392,12 @@ static char *get_class_info(sepol_security_class_t tclass,
  * for analysis. If this option is not required, then:
  *      'tclass' should be '0' and r_buf MUST be NULL.
  */
-static int constraint_expr_eval_reason(context_struct_t *scontext,
-				context_struct_t *tcontext,
-				context_struct_t *xcontext,
-				sepol_security_class_t tclass,
-				constraint_node_t *constraint,
-				char **r_buf,
-				unsigned int flags)
+static int constraint_expr_eval_reason(context_struct_t * scontext,
+				       context_struct_t * tcontext,
+				       context_struct_t * xcontext,
+				       sepol_security_class_t tclass,
+				       constraint_node_t * constraint,
+				       char **r_buf, unsigned int flags)
 {
 	uint32_t val1, val2;
 	context_struct_t *c;
@@ -449,9 +454,11 @@ static int constraint_expr_eval_reason(context_struct_t *scontext,
 				new_expr_list_len = expr_list_len * 2;
 
 			new_expr_list = realloc(expr_list,
-					new_expr_list_len * sizeof(*expr_list));
+						new_expr_list_len *
+						sizeof(*expr_list));
 			if (!new_expr_list) {
-				ERR(NULL, "failed to allocate expr buffer stack");
+				ERR(NULL,
+				    "failed to allocate expr buffer stack");
 				rc = -ENOMEM;
 				goto out;
 			}
@@ -499,37 +506,50 @@ static int constraint_expr_eval_reason(context_struct_t *scontext,
 			case CEXPR_USER:
 				val1 = scontext->user;
 				val2 = tcontext->user;
-				free(src); src = strdup("u1");
-				free(tgt); tgt = strdup("u2");
+				free(src);
+				src = strdup("u1");
+				free(tgt);
+				tgt = strdup("u2");
 				break;
 			case CEXPR_TYPE:
 				val1 = scontext->type;
 				val2 = tcontext->type;
-				free(src); src = strdup("t1");
-				free(tgt); tgt = strdup("t2");
+				free(src);
+				src = strdup("t1");
+				free(tgt);
+				tgt = strdup("t2");
 				break;
 			case CEXPR_ROLE:
 				val1 = scontext->role;
 				val2 = tcontext->role;
 				r1 = policydb->role_val_to_struct[val1 - 1];
 				r2 = policydb->role_val_to_struct[val2 - 1];
-				free(src); src = strdup("r1");
-				free(tgt); tgt = strdup("r2");
+				free(src);
+				src = strdup("r1");
+				free(tgt);
+				tgt = strdup("r2");
 
 				switch (e->op) {
 				case CEXPR_DOM:
-					s[++sp] = ebitmap_get_bit(&r1->dominates, val2 - 1);
+					s[++sp] =
+					    ebitmap_get_bit(&r1->dominates,
+							    val2 - 1);
 					msgcat(src, tgt, "dom", s[sp] == 0);
 					expr_counter++;
 					continue;
 				case CEXPR_DOMBY:
-					s[++sp] = ebitmap_get_bit(&r2->dominates, val1 - 1);
+					s[++sp] =
+					    ebitmap_get_bit(&r2->dominates,
+							    val1 - 1);
 					msgcat(src, tgt, "domby", s[sp] == 0);
 					expr_counter++;
 					continue;
 				case CEXPR_INCOMP:
-					s[++sp] = (!ebitmap_get_bit(&r1->dominates, val2 - 1)
-						 && !ebitmap_get_bit(&r2->dominates, val1 - 1));
+					s[++sp] =
+					    (!ebitmap_get_bit
+					     (&r1->dominates, val2 - 1)
+					     && !ebitmap_get_bit(&r2->dominates,
+								 val1 - 1));
 					msgcat(src, tgt, "incomp", s[sp] == 0);
 					expr_counter++;
 					continue;
@@ -540,38 +560,50 @@ static int constraint_expr_eval_reason(context_struct_t *scontext,
 			case CEXPR_L1L2:
 				l1 = &(scontext->range.level[0]);
 				l2 = &(tcontext->range.level[0]);
-				free(src); src = strdup("l1");
-				free(tgt); tgt = strdup("l2");
+				free(src);
+				src = strdup("l1");
+				free(tgt);
+				tgt = strdup("l2");
 				goto mls_ops;
 			case CEXPR_L1H2:
 				l1 = &(scontext->range.level[0]);
 				l2 = &(tcontext->range.level[1]);
-				free(src); src = strdup("l1");
-				free(tgt); tgt = strdup("h2");
+				free(src);
+				src = strdup("l1");
+				free(tgt);
+				tgt = strdup("h2");
 				goto mls_ops;
 			case CEXPR_H1L2:
 				l1 = &(scontext->range.level[1]);
 				l2 = &(tcontext->range.level[0]);
-				free(src); src = strdup("h1");
-				free(tgt); tgt = strdup("l2");
+				free(src);
+				src = strdup("h1");
+				free(tgt);
+				tgt = strdup("l2");
 				goto mls_ops;
 			case CEXPR_H1H2:
 				l1 = &(scontext->range.level[1]);
 				l2 = &(tcontext->range.level[1]);
-				free(src); src = strdup("h1");
-				free(tgt); tgt = strdup("h2");
+				free(src);
+				src = strdup("h1");
+				free(tgt);
+				tgt = strdup("h2");
 				goto mls_ops;
 			case CEXPR_L1H1:
 				l1 = &(scontext->range.level[0]);
 				l2 = &(scontext->range.level[1]);
-				free(src); src = strdup("l1");
-				free(tgt); tgt = strdup("h1");
+				free(src);
+				src = strdup("l1");
+				free(tgt);
+				tgt = strdup("h1");
 				goto mls_ops;
 			case CEXPR_L2H2:
 				l1 = &(tcontext->range.level[0]);
 				l2 = &(tcontext->range.level[1]);
-				free(src); src = strdup("l2");
-				free(tgt); tgt = strdup("h2");
+				free(src);
+				src = strdup("l2");
+				free(tgt);
+				tgt = strdup("h2");
 mls_ops:
 				switch (e->op) {
 				case CEXPR_EQ:
@@ -642,18 +674,24 @@ mls_ops:
 			if (e->attr & CEXPR_USER) {
 				u_r_t = CEXPR_USER;
 				val1 = c->user;
-				snprintf(tmp_buf, sizeof(tmp_buf), "u%d ", s_t_x_num);
-				free(src); src = strdup(tmp_buf);
+				snprintf(tmp_buf, sizeof(tmp_buf), "u%d ",
+					 s_t_x_num);
+				free(src);
+				src = strdup(tmp_buf);
 			} else if (e->attr & CEXPR_ROLE) {
 				u_r_t = CEXPR_ROLE;
 				val1 = c->role;
-				snprintf(tmp_buf, sizeof(tmp_buf), "r%d ", s_t_x_num);
-				free(src); src = strdup(tmp_buf);
+				snprintf(tmp_buf, sizeof(tmp_buf), "r%d ",
+					 s_t_x_num);
+				free(src);
+				src = strdup(tmp_buf);
 			} else if (e->attr & CEXPR_TYPE) {
 				u_r_t = CEXPR_TYPE;
 				val1 = c->type;
-				snprintf(tmp_buf, sizeof(tmp_buf), "t%d ", s_t_x_num);
-				free(src); src = strdup(tmp_buf);
+				snprintf(tmp_buf, sizeof(tmp_buf), "t%d ",
+					 s_t_x_num);
+				free(src);
+				src = strdup(tmp_buf);
 			} else {
 				BUG();
 				goto out;
@@ -713,8 +751,8 @@ mls_ops:
 
 	/* Convert constraint from RPN to infix notation. */
 	for (x = 0; x != expr_count; x++) {
-		if (strncmp(expr_list[x], "and", 3) == 0 || strncmp(expr_list[x],
-					"or", 2) == 0) {
+		if (strncmp(expr_list[x], "and", 3) == 0
+		    || strncmp(expr_list[x], "or", 2) == 0) {
 			b = pop();
 			b_len = strlen(b);
 			a = pop();
@@ -727,10 +765,11 @@ mls_ops:
 				rc = -ENOMEM;
 				goto out;
 			}
-			memset(answer_list[answer_counter], '\0', a_len + b_len + 8);
+			memset(answer_list[answer_counter], '\0',
+			       a_len + b_len + 8);
 
 			sprintf(answer_list[answer_counter], "%s %s %s", a,
-					expr_list[x], b);
+				expr_list[x], b);
 			push(answer_list[answer_counter++]);
 			free(a);
 			free(b);
@@ -749,10 +788,10 @@ mls_ops:
 
 			if (strncmp(b, "not", 3) == 0)
 				sprintf(answer_list[answer_counter], "%s (%s)",
-						expr_list[x], b);
+					expr_list[x], b);
 			else
 				sprintf(answer_list[answer_counter], "%s%s",
-						expr_list[x], b);
+					expr_list[x], b);
 			push(answer_list[answer_counter++]);
 			free(b);
 			free(expr_list[x]);
@@ -764,10 +803,10 @@ mls_ops:
 	a = pop();
 
 	/* validatetrans / constraint calculation:
-				rc = 0 is denied, rc = 1 is granted */
+	   rc = 0 is denied, rc = 1 is granted */
 	sprintf(tmp_buf, "%s %s\n",
-			xcontext ? "Validatetrans" : "Constraint",
-			s[0] ? "GRANTED" : "DENIED");
+		xcontext ? "Validatetrans" : "Constraint",
+		s[0] ? "GRANTED" : "DENIED");
 
 	int len, new_buf_len;
 	char *p, **new_buf = r_buf;
@@ -786,17 +825,24 @@ mls_ops:
 	 */
 
 	if (r_buf && ((s[0] == 0) || ((s[0] == 1 &&
-				(flags & SHOW_GRANTED) == SHOW_GRANTED)))) {
+				       (flags & SHOW_GRANTED) ==
+				       SHOW_GRANTED)))) {
 		for (x = 0; buffers[x] != NULL; x++) {
 			while (1) {
 				p = *r_buf + reason_buf_used;
-				len = snprintf(p, reason_buf_len - reason_buf_used,
-						"%s", buffers[x]);
-				if (len < 0 || len >= reason_buf_len - reason_buf_used) {
-					new_buf_len = reason_buf_len + REASON_BUF_SIZE;
+				len =
+				    snprintf(p,
+					     reason_buf_len - reason_buf_used,
+					     "%s", buffers[x]);
+				if (len < 0
+				    || len >=
+				    reason_buf_len - reason_buf_used) {
+					new_buf_len =
+					    reason_buf_len + REASON_BUF_SIZE;
 					*new_buf = realloc(*r_buf, new_buf_len);
 					if (!new_buf) {
-						ERR(NULL, "failed to realloc reason buffer");
+						ERR(NULL,
+						    "failed to realloc reason buffer");
 						goto out1;
 					}
 					**r_buf = **new_buf;
@@ -835,11 +881,10 @@ static int context_struct_compute_av(context_struct_t * scontext,
 				     sepol_access_vector_t requested,
 				     struct sepol_av_decision *avd,
 				     unsigned int *reason,
-				     char **r_buf,
-				     unsigned int flags);
+				     char **r_buf, unsigned int flags);
 
-static void type_attribute_bounds_av(context_struct_t *scontext,
-				     context_struct_t *tcontext,
+static void type_attribute_bounds_av(context_struct_t * scontext,
+				     context_struct_t * tcontext,
 				     sepol_security_class_t tclass,
 				     sepol_access_vector_t requested,
 				     struct sepol_av_decision *avd,
@@ -869,14 +914,8 @@ static void type_attribute_bounds_av(context_struct_t *scontext,
 		tcontextp = &lo_tcontext;
 	}
 
-	context_struct_compute_av(&lo_scontext,
-				  tcontextp,
-				  tclass,
-				  requested,
-				  &lo_avd,
-				  NULL, /* reason intentionally omitted */
-				  NULL,
-				  0);
+	context_struct_compute_av(&lo_scontext, tcontextp, tclass, requested, &lo_avd, NULL,	/* reason intentionally omitted */
+				  NULL, 0);
 
 	masked = ~lo_avd.allowed & avd->allowed;
 
@@ -899,8 +938,7 @@ static int context_struct_compute_av(context_struct_t * scontext,
 				     sepol_access_vector_t requested,
 				     struct sepol_av_decision *avd,
 				     unsigned int *reason,
-				     char **r_buf,
-				     unsigned int flags)
+				     char **r_buf, unsigned int flags)
 {
 	constraint_node_t *constraint;
 	struct role_allow *ra;
@@ -978,7 +1016,8 @@ static int context_struct_compute_av(context_struct_t * scontext,
 	while (constraint) {
 		if ((constraint->permissions & (avd->allowed)) &&
 		    !constraint_expr_eval_reason(scontext, tcontext, NULL,
-					  tclass, constraint, r_buf, flags)) {
+						 tclass, constraint, r_buf,
+						 flags)) {
 			avd->allowed =
 			    (avd->allowed) & ~(constraint->permissions);
 		}
@@ -1058,7 +1097,7 @@ int hidden sepol_validate_transition(sepol_security_id_t oldsid,
 	constraint = tclass_datum->validatetrans;
 	while (constraint) {
 		if (!constraint_expr_eval_reason(ocontext, ncontext, tcontext,
-					  0, constraint, NULL, 0)) {
+						 0, constraint, NULL, 0)) {
 			return -EPERM;
 		}
 		constraint = constraint->next;
@@ -1072,11 +1111,11 @@ int hidden sepol_validate_transition(sepol_security_id_t oldsid,
  * in the constraint_expr_eval_reason() function.
  */
 int hidden sepol_validate_transition_reason_buffer(sepol_security_id_t oldsid,
-				     sepol_security_id_t newsid,
-				     sepol_security_id_t tasksid,
-				     sepol_security_class_t tclass,
-				     char **reason_buf,
-				     unsigned int flags)
+						   sepol_security_id_t newsid,
+						   sepol_security_id_t tasksid,
+						   sepol_security_class_t
+						   tclass, char **reason_buf,
+						   unsigned int flags)
 {
 	context_struct_t *ocontext;
 	context_struct_t *ncontext;
@@ -1121,7 +1160,8 @@ int hidden sepol_validate_transition_reason_buffer(sepol_security_id_t oldsid,
 	constraint = tclass_datum->validatetrans;
 	while (constraint) {
 		if (!constraint_expr_eval_reason(ocontext, ncontext, tcontext,
-				tclass, constraint, reason_buf, flags)) {
+						 tclass, constraint, reason_buf,
+						 flags)) {
 			return -EPERM;
 		}
 		constraint = constraint->next;
@@ -1153,8 +1193,8 @@ int hidden sepol_compute_av_reason(sepol_security_id_t ssid,
 	}
 
 	rc = context_struct_compute_av(scontext, tcontext, tclass,
-					requested, avd, reason, NULL, 0);
-      out:
+				       requested, avd, reason, NULL, 0);
+out:
 	return rc;
 }
 
@@ -1164,13 +1204,12 @@ int hidden sepol_compute_av_reason(sepol_security_id_t ssid,
  * in the constraint_expr_eval_reason() function.
  */
 int hidden sepol_compute_av_reason_buffer(sepol_security_id_t ssid,
-				   sepol_security_id_t tsid,
-				   sepol_security_class_t tclass,
-				   sepol_access_vector_t requested,
-				   struct sepol_av_decision *avd,
-				   unsigned int *reason,
-				   char **reason_buf,
-				   unsigned int flags)
+					  sepol_security_id_t tsid,
+					  sepol_security_class_t tclass,
+					  sepol_access_vector_t requested,
+					  struct sepol_av_decision *avd,
+					  unsigned int *reason,
+					  char **reason_buf, unsigned int flags)
 {
 	context_struct_t *scontext = 0, *tcontext = 0;
 	int rc = 0;
@@ -1200,7 +1239,8 @@ int hidden sepol_compute_av_reason_buffer(sepol_security_id_t ssid,
 	reason_buf_len = 0;
 
 	rc = context_struct_compute_av(scontext, tcontext, tclass,
-					   requested, avd, reason, reason_buf, flags);
+				       requested, avd, reason, reason_buf,
+				       flags);
 out:
 	return rc;
 }
@@ -1221,7 +1261,7 @@ int hidden sepol_compute_av(sepol_security_id_t ssid,
  * class_name.
  */
 int hidden sepol_string_to_security_class(const char *class_name,
-			sepol_security_class_t *tclass)
+					  sepol_security_class_t * tclass)
 {
 	class_datum_t *tclass_datum;
 
@@ -1240,8 +1280,8 @@ int hidden sepol_string_to_security_class(const char *class_name,
  * string.
  */
 int hidden sepol_string_to_av_perm(sepol_security_class_t tclass,
-					const char *perm_name,
-					sepol_access_vector_t *av)
+				   const char *perm_name,
+				   sepol_access_vector_t * av)
 {
 	class_datum_t *tclass_datum;
 	perm_datum_t *perm_datum;
@@ -1254,8 +1294,8 @@ int hidden sepol_string_to_av_perm(sepol_security_class_t tclass,
 
 	/* Check for unique perms then the common ones (if any) */
 	perm_datum = (perm_datum_t *)
-			hashtab_search(tclass_datum->permissions.table,
-			(hashtab_key_t)perm_name);
+	    hashtab_search(tclass_datum->permissions.table,
+			   (hashtab_key_t) perm_name);
 	if (perm_datum != NULL) {
 		*av = 0x1 << (perm_datum->s.value - 1);
 		return STATUS_SUCCESS;
@@ -1265,8 +1305,8 @@ int hidden sepol_string_to_av_perm(sepol_security_class_t tclass,
 		goto out;
 
 	perm_datum = (perm_datum_t *)
-			hashtab_search(tclass_datum->comdatum->permissions.table,
-			(hashtab_key_t)perm_name);
+	    hashtab_search(tclass_datum->comdatum->permissions.table,
+			   (hashtab_key_t) perm_name);
 
 	if (perm_datum != NULL) {
 		*av = 0x1 << (perm_datum->s.value - 1);
@@ -1286,7 +1326,7 @@ out:
  */
 int hidden sepol_sid_to_context(sepol_security_id_t sid,
 				sepol_security_context_t * scontext,
-				size_t * scontext_len)
+				size_t *scontext_len)
 {
 	context_struct_t *context;
 	int rc = 0;
@@ -1298,7 +1338,7 @@ int hidden sepol_sid_to_context(sepol_security_id_t sid,
 		goto out;
 	}
 	rc = context_to_string(NULL, policydb, context, scontext, scontext_len);
-      out:
+out:
 	return rc;
 
 }
@@ -1326,7 +1366,7 @@ int hidden sepol_context_to_sid(const sepol_security_context_t scontext,
 	free(context);
 	return STATUS_SUCCESS;
 
-      err:
+err:
 	if (context) {
 		context_destroy(context);
 		free(context);
@@ -1478,7 +1518,7 @@ static int sepol_compute_sid(sepol_security_id_t ssid,
 	}
 	/* Obtain the sid for the context. */
 	rc = sepol_sidtab_context_to_sid(sidtab, &newcontext, out_sid);
-      out:
+out:
 	context_destroy(&newcontext);
 	return rc;
 }
@@ -1629,7 +1669,7 @@ typedef struct {
  * in the policy `p->newp'.  Verify that the
  * context is valid under the new policy.
  */
-static int convert_context(sepol_security_id_t key __attribute__ ((unused)),
+static int convert_context(sepol_security_id_t key __attribute__((unused)),
 			   context_struct_t * c, void *p)
 {
 	convert_context_args_t *args;
@@ -1648,9 +1688,11 @@ static int convert_context(sepol_security_id_t key __attribute__ ((unused)),
 
 	/* Convert the user. */
 	usrdatum = (user_datum_t *) hashtab_search(args->newp->p_users.table,
-						   args->oldp->
-						   p_user_val_to_name[c->user -
-								      1]);
+						   args->
+						   oldp->p_user_val_to_name[c->
+									    user
+									    -
+									    1]);
 
 	if (!usrdatum) {
 		goto bad;
@@ -1659,8 +1701,10 @@ static int convert_context(sepol_security_id_t key __attribute__ ((unused)),
 
 	/* Convert the role. */
 	role = (role_datum_t *) hashtab_search(args->newp->p_roles.table,
-					       args->oldp->
-					       p_role_val_to_name[c->role - 1]);
+					       args->
+					       oldp->p_role_val_to_name[c->
+									role -
+									1]);
 	if (!role) {
 		goto bad;
 	}
@@ -1689,7 +1733,7 @@ static int convert_context(sepol_security_id_t key __attribute__ ((unused)),
 	context_destroy(&oldc);
 	return 0;
 
-      bad:
+bad:
 	context_to_string(NULL, policydb, &oldc, &s, &len);
 	context_destroy(&oldc);
 	ERR(NULL, "invalidating context %s", s);
@@ -1862,7 +1906,7 @@ int hidden sepol_load_policy(void *data, size_t len)
 
 	return 0;
 
-      err:
+err:
 	sepol_sidtab_destroy(&newsidtab);
 	policydb_destroy(&newpolicydb);
 	return rc;
@@ -1910,7 +1954,78 @@ int hidden sepol_fs_sid(char *name,
 		*file_sid = SECINITSID_FILE;
 	}
 
-      out:
+out:
+	return rc;
+}
+
+/*
+ * Return the SID of the ibpkey specified by
+ * `subnet prefix', and `pkey number'.
+ */
+int hidden sepol_ibpkey_sid(uint64_t subnet_prefix,
+			    uint16_t pkey, sepol_security_id_t * out_sid)
+{
+	ocontext_t *c;
+	int rc = 0;
+
+	c = policydb->ocontexts[OCON_IBPKEY];
+	while (c) {
+		if (c->u.ibpkey.low_pkey <= pkey &&
+		    c->u.ibpkey.high_pkey >= pkey &&
+		    subnet_prefix == c->u.ibpkey.subnet_prefix)
+			break;
+		c = c->next;
+	}
+
+	if (c) {
+		if (!c->sid[0]) {
+			rc = sepol_sidtab_context_to_sid(sidtab,
+							 &c->context[0],
+							 &c->sid[0]);
+			if (rc)
+				goto out;
+		}
+		*out_sid = c->sid[0];
+	} else {
+		*out_sid = SECINITSID_UNLABELED;
+	}
+
+out:
+	return rc;
+}
+
+/*
+ * Return the SID of the subnet management interface specified by
+ * `device name', and `port'.
+ */
+int hidden sepol_ibendport_sid(char *dev_name,
+			       uint8_t port, sepol_security_id_t * out_sid)
+{
+	ocontext_t *c;
+	int rc = 0;
+
+	c = policydb->ocontexts[OCON_IBENDPORT];
+	while (c) {
+		if (c->u.ibendport.port == port &&
+		    !strcmp(dev_name, c->u.ibendport.dev_name))
+			break;
+		c = c->next;
+	}
+
+	if (c) {
+		if (!c->sid[0]) {
+			rc = sepol_sidtab_context_to_sid(sidtab,
+							 &c->context[0],
+							 &c->sid[0]);
+			if (rc)
+				goto out;
+		}
+		*out_sid = c->sid[0];
+	} else {
+		*out_sid = SECINITSID_UNLABELED;
+	}
+
+out:
 	return rc;
 }
 
@@ -1918,8 +2033,8 @@ int hidden sepol_fs_sid(char *name,
  * Return the SID of the port specified by
  * `domain', `type', `protocol', and `port'.
  */
-int hidden sepol_port_sid(uint16_t domain __attribute__ ((unused)),
-			  uint16_t type __attribute__ ((unused)),
+int hidden sepol_port_sid(uint16_t domain __attribute__((unused)),
+			  uint16_t type __attribute__((unused)),
 			  uint8_t protocol,
 			  uint16_t port, sepol_security_id_t * out_sid)
 {
@@ -1947,7 +2062,7 @@ int hidden sepol_port_sid(uint16_t domain __attribute__ ((unused)),
 		*out_sid = SECINITSID_PORT;
 	}
 
-      out:
+out:
 	return rc;
 }
 
@@ -1992,7 +2107,7 @@ int hidden sepol_netif_sid(char *name,
 		*msg_sid = SECINITSID_NETMSG;
 	}
 
-      out:
+out:
 	return rc;
 }
 
@@ -2076,7 +2191,7 @@ int hidden sepol_node_sid(uint16_t domain,
 		*out_sid = SECINITSID_NODE;
 	}
 
-      out:
+out:
 	return rc;
 }
 
@@ -2179,7 +2294,7 @@ int hidden sepol_get_user_sids(sepol_security_id_t fromsid,
 	*sids = mysids;
 	*nel = mynel;
 
-      out:
+out:
 	return rc;
 }
 
@@ -2231,7 +2346,7 @@ int hidden sepol_genfs_sid(const char *fstype,
 	}
 
 	*sid = c->sid[0];
-      out:
+out:
 	return rc;
 }
 
@@ -2268,7 +2383,7 @@ int hidden sepol_fs_use(const char *fstype,
 		}
 	}
 
-      out:
+out:
 	return rc;
 }
 

@@ -37,7 +37,7 @@ void sepol_policy_file_set_fp(sepol_policy_file_t * spf, FILE * fp)
 	return;
 }
 
-int sepol_policy_file_get_len(sepol_policy_file_t * spf, size_t * len)
+int sepol_policy_file_get_len(sepol_policy_file_t * spf, size_t *len)
 {
 	struct policy_file *pf = &spf->pf;
 	if (pf->type != PF_LEN)
@@ -74,7 +74,6 @@ int sepol_policydb_create(sepol_policydb_t ** sp)
 }
 
 hidden_def(sepol_policydb_create)
-
 void sepol_policydb_free(sepol_policydb_t * p)
 {
 	if (!p)
@@ -84,7 +83,6 @@ void sepol_policydb_free(sepol_policydb_t * p)
 }
 
 hidden_def(sepol_policydb_free)
-
 int sepol_policy_kern_vers_min(void)
 {
 	return POLICYDB_VERSION_MIN;
@@ -148,12 +146,12 @@ int sepol_policydb_set_handle_unknown(sepol_policydb_t * sp,
 		return -1;
 	}
 
-	p->handle_unknown = handle_unknown;		
+	p->handle_unknown = handle_unknown;
 	return 0;
 }
 
 int sepol_policydb_set_target_platform(sepol_policydb_t * sp,
-				      int target_platform)
+				       int target_platform)
 {
 	struct policydb *p = &sp->p;
 
@@ -165,7 +163,7 @@ int sepol_policydb_set_target_platform(sepol_policydb_t * sp,
 		return -1;
 	}
 
-	p->target_platform = target_platform;		
+	p->target_platform = target_platform;
 	return 0;
 }
 
@@ -187,7 +185,7 @@ int sepol_policydb_from_image(sepol_handle_t * handle,
 
 int sepol_policydb_to_image(sepol_handle_t * handle,
 			    sepol_policydb_t * p, void **newdata,
-			    size_t * newlen)
+			    size_t *newlen)
 {
 	return policydb_to_image(handle, &p->p, newdata, newlen);
 }

@@ -1,5 +1,5 @@
 
-/* Author : Stephen Smalley, <sds@epoch.ncsc.mil> */
+/* Author : Stephen Smalley, <sds@tycho.nsa.gov> */
 
 /*
  * Updated : Karl MacMillan <kmacmillan@mentalrootkit.com>
@@ -21,7 +21,6 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-
 /* FLASK */
 
 /*
@@ -32,11 +31,11 @@
 #include <string.h>
 #include <sepol/policydb/hashtab.h>
 
-hashtab_t hashtab_create(unsigned int (*hash_value) (hashtab_t h,
-						     const_hashtab_key_t key),
-			 int (*keycmp) (hashtab_t h,
-					const_hashtab_key_t key1,
-					const_hashtab_key_t key2),
+hashtab_t hashtab_create(unsigned int (*hash_value)(hashtab_t h,
+						    const_hashtab_key_t key),
+			 int(*keycmp)(hashtab_t h,
+				      const_hashtab_key_t key1,
+				      const_hashtab_key_t key2),
 			 unsigned int size)
 {
 
@@ -101,8 +100,8 @@ int hashtab_insert(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum)
 }
 
 int hashtab_remove(hashtab_t h, hashtab_key_t key,
-		   void (*destroy) (hashtab_key_t k,
-				    hashtab_datum_t d, void *args), void *args)
+		   void (*destroy)(hashtab_key_t k,
+				   hashtab_datum_t d, void *args), void *args)
 {
 	int hvalue;
 	hashtab_ptr_t cur, last;
@@ -134,8 +133,8 @@ int hashtab_remove(hashtab_t h, hashtab_key_t key,
 }
 
 int hashtab_replace(hashtab_t h, hashtab_key_t key, hashtab_datum_t datum,
-		    void (*destroy) (hashtab_key_t k,
-				     hashtab_datum_t d, void *args), void *args)
+		    void (*destroy)(hashtab_key_t k,
+				    hashtab_datum_t d, void *args), void *args)
 {
 	int hvalue;
 	hashtab_ptr_t prev, cur, newnode;
@@ -220,8 +219,8 @@ void hashtab_destroy(hashtab_t h)
 }
 
 int hashtab_map(hashtab_t h,
-		int (*apply) (hashtab_key_t k,
-			      hashtab_datum_t d, void *args), void *args)
+		int (*apply)(hashtab_key_t k,
+			     hashtab_datum_t d, void *args), void *args)
 {
 	unsigned int i, ret;
 	hashtab_ptr_t cur;
@@ -242,12 +241,12 @@ int hashtab_map(hashtab_t h,
 }
 
 void hashtab_map_remove_on_error(hashtab_t h,
-				 int (*apply) (hashtab_key_t k,
-					       hashtab_datum_t d,
-					       void *args),
-				 void (*destroy) (hashtab_key_t k,
-						  hashtab_datum_t d,
-						  void *args), void *args)
+				 int (*apply)(hashtab_key_t k,
+					      hashtab_datum_t d,
+					      void *args),
+				 void(*destroy)(hashtab_key_t k,
+						hashtab_datum_t d,
+						void *args), void *args)
 {
 	unsigned int i;
 	int ret;

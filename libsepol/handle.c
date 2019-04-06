@@ -26,7 +26,7 @@ sepol_handle_t *sepol_handle_create(void)
 	return sh;
 }
 
-int sepol_get_preserve_tunables(sepol_handle_t *sh)
+int sepol_get_preserve_tunables(sepol_handle_t * sh)
 {
 	assert(sh != NULL);
 	return sh->preserve_tunables;
@@ -34,23 +34,23 @@ int sepol_get_preserve_tunables(sepol_handle_t *sh)
 
 void sepol_set_preserve_tunables(sepol_handle_t * sh, int preserve_tunables)
 {
-	assert(sh !=NULL);
+	assert(sh != NULL);
 	sh->preserve_tunables = preserve_tunables;
 }
 
-int sepol_get_disable_dontaudit(sepol_handle_t *sh)
+int sepol_get_disable_dontaudit(sepol_handle_t * sh)
 {
-	assert(sh !=NULL);
+	assert(sh != NULL);
 	return sh->disable_dontaudit;
 }
 
 void sepol_set_disable_dontaudit(sepol_handle_t * sh, int disable_dontaudit)
 {
-	assert(sh !=NULL);
+	assert(sh != NULL);
 	sh->disable_dontaudit = disable_dontaudit;
 }
 
-void sepol_set_expand_consume_base(sepol_handle_t *sh, int consume_base)
+void sepol_set_expand_consume_base(sepol_handle_t * sh, int consume_base)
 {
 	assert(sh != NULL);
 	sh->expand_consume_base = consume_base;

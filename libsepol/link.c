@@ -199,40 +199,48 @@ static int permission_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 	mod->perm_map[sclassi][perm->s.value - 1] = dest_perm->s.value;
 
 	return 0;
-      err:
+err:
 	free(new_id);
 	free(new_perm);
 	return ret;
 }
 
-static int class_copy_default_new_object(link_state_t *state,
-					 class_datum_t *olddatum,
-					 class_datum_t *newdatum)
+static int class_copy_default_new_object(link_state_t * state,
+					 class_datum_t * olddatum,
+					 class_datum_t * newdatum)
 {
 	if (olddatum->default_user) {
-		if (newdatum->default_user && olddatum->default_user != newdatum->default_user) {
-			ERR(state->handle, "Found conflicting default user definitions");
+		if (newdatum->default_user
+		    && olddatum->default_user != newdatum->default_user) {
+			ERR(state->handle,
+			    "Found conflicting default user definitions");
 			return SEPOL_ENOTSUP;
 		}
 		newdatum->default_user = olddatum->default_user;
 	}
 	if (olddatum->default_role) {
-		if (newdatum->default_role && olddatum->default_role != newdatum->default_role) {
-			ERR(state->handle, "Found conflicting default role definitions");
+		if (newdatum->default_role
+		    && olddatum->default_role != newdatum->default_role) {
+			ERR(state->handle,
+			    "Found conflicting default role definitions");
 			return SEPOL_ENOTSUP;
 		}
 		newdatum->default_role = olddatum->default_role;
 	}
 	if (olddatum->default_type) {
-		if (newdatum->default_type && olddatum->default_type != newdatum->default_type) {
-			ERR(state->handle, "Found conflicting default type definitions");
+		if (newdatum->default_type
+		    && olddatum->default_type != newdatum->default_type) {
+			ERR(state->handle,
+			    "Found conflicting default type definitions");
 			return SEPOL_ENOTSUP;
 		}
 		newdatum->default_type = olddatum->default_type;
 	}
 	if (olddatum->default_range) {
-		if (newdatum->default_range && olddatum->default_range != newdatum->default_range) {
-			ERR(state->handle, "Found conflicting default range definitions");
+		if (newdatum->default_range
+		    && olddatum->default_range != newdatum->default_range) {
+			ERR(state->handle,
+			    "Found conflicting default range definitions");
 			return SEPOL_ENOTSUP;
 		}
 		newdatum->default_range = olddatum->default_range;
@@ -337,7 +345,7 @@ static int class_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 	}
 
 	return 0;
-      err:
+err:
 	free(new_class);
 	free(new_id);
 	return ret;
@@ -422,7 +430,7 @@ static int role_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 	state->cur->map[SYM_ROLES][role->s.value - 1] = base_role->s.value;
 	return 0;
 
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	role_datum_destroy(new_role);
 	free(new_id);
@@ -467,8 +475,8 @@ static int type_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 			    state->cur_mod_name, id);
 			return -1;
 		}
-		/* permissive should pass to the base type */
-		base_type->flags |= (type->flags & TYPE_FLAGS_PERMISSIVE);
+
+		base_type->flags |= type->flags;
 	} else {
 		if (state->verbose)
 			INFO(state->handle, "copying type %s", id);
@@ -521,7 +529,7 @@ static int type_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 	state->cur->map[SYM_TYPES][type->s.value - 1] = base_type->s.value;
 	return 0;
 
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	free(new_id);
 	free(new_type);
@@ -587,7 +595,7 @@ static int user_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 	state->cur->map[SYM_USERS][user->s.value - 1] = base_user->s.value;
 	return 0;
 
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	user_datum_destroy(new_user);
 	free(new_id);
@@ -633,19 +641,19 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 		base_bool->state = booldatum->state;
 	} else if ((booldatum->flags & COND_BOOL_FLAGS_TUNABLE) !=
 		   (base_bool->flags & COND_BOOL_FLAGS_TUNABLE)) {
-			/* A mismatch between boolean/tunable declaration
-			 * and usage(for example a boolean used in the
-			 * tunable_policy() or vice versa).
-			 *
-			 * This is not allowed and bail out with errors */
-			ERR(state->handle,
-			    "%s: Mismatch between boolean/tunable definition "
-			    "and usage for %s", state->cur_mod_name, id);
-			return -1;
+		/* A mismatch between boolean/tunable declaration
+		 * and usage(for example a boolean used in the
+		 * tunable_policy() or vice versa).
+		 *
+		 * This is not allowed and bail out with errors */
+		ERR(state->handle,
+		    "%s: Mismatch between boolean/tunable definition "
+		    "and usage for %s", state->cur_mod_name, id);
+		return -1;
 	}
 
 	/* Get the scope info for this boolean to see if this is the declaration, 
- 	 * if so set the state */
+	 * if so set the state */
 	scope = hashtab_search(state->cur->policy->p_bools_scope.table, id);
 	if (!scope)
 		return SEPOL_ERR;
@@ -658,7 +666,7 @@ static int bool_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 	state->cur->map[SYM_BOOLS][booldatum->s.value - 1] = base_bool->s.value;
 	return 0;
 
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	cond_destroy_bool(new_id, new_bool, NULL);
 	return -1;
@@ -718,7 +726,8 @@ static int cat_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 
 	base_cat = hashtab_search(state->base->p_cats.table, id);
 	if (!base_cat) {
-		scope = hashtab_search(state->cur->policy->p_cat_scope.table, id);
+		scope =
+		    hashtab_search(state->cur->policy->p_cat_scope.table, id);
 		if (!scope)
 			return SEPOL_ERR;
 		if (scope->scope == SCOPE_DECL) {
@@ -747,11 +756,12 @@ static int cat_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 	return 0;
 }
 
-static int (*copy_callback_f[SYM_NUM]) (hashtab_key_t key,
-					hashtab_datum_t datum, void *datap) = {
-NULL, class_copy_callback, role_copy_callback, type_copy_callback,
-	    user_copy_callback, bool_copy_callback, sens_copy_callback,
-	    cat_copy_callback};
+static int (*copy_callback_f[SYM_NUM])(hashtab_key_t key,
+				       hashtab_datum_t datum, void *datap) = {
+	NULL, class_copy_callback, role_copy_callback, type_copy_callback,
+	user_copy_callback, bool_copy_callback, sens_copy_callback,
+	cat_copy_callback
+};
 
 /*
  * The boundaries have to be copied after the types/roles/users are copied,
@@ -772,13 +782,11 @@ static int type_bounds_copy_callback(hashtab_key_t key,
 
 	dest = hashtab_search(state->base->p_types.table, key);
 	if (!dest) {
-		ERR(state->handle,
-		    "Type lookup failed for %s", (char *)key);
+		ERR(state->handle, "Type lookup failed for %s", (char *)key);
 		return -1;
 	}
 	if (dest->bounds != 0 && dest->bounds != bounds_val) {
-		ERR(state->handle,
-		    "Inconsistent boundary for %s", (char *)key);
+		ERR(state->handle, "Inconsistent boundary for %s", (char *)key);
 		return -1;
 	}
 	dest->bounds = bounds_val;
@@ -801,13 +809,11 @@ static int role_bounds_copy_callback(hashtab_key_t key,
 
 	dest = hashtab_search(state->base->p_roles.table, key);
 	if (!dest) {
-		ERR(state->handle,
-		    "Role lookup failed for %s", (char *)key);
+		ERR(state->handle, "Role lookup failed for %s", (char *)key);
 		return -1;
 	}
 	if (dest->bounds != 0 && dest->bounds != bounds_val) {
-		ERR(state->handle,
-		    "Inconsistent boundary for %s", (char *)key);
+		ERR(state->handle, "Inconsistent boundary for %s", (char *)key);
 		return -1;
 	}
 	dest->bounds = bounds_val;
@@ -830,13 +836,11 @@ static int user_bounds_copy_callback(hashtab_key_t key,
 
 	dest = hashtab_search(state->base->p_users.table, key);
 	if (!dest) {
-		ERR(state->handle,
-		    "User lookup failed for %s", (char *)key);
+		ERR(state->handle, "User lookup failed for %s", (char *)key);
 		return -1;
 	}
 	if (dest->bounds != 0 && dest->bounds != bounds_val) {
-		ERR(state->handle,
-		    "Inconsistent boundary for %s", (char *)key);
+		ERR(state->handle, "Inconsistent boundary for %s", (char *)key);
 		return -1;
 	}
 	dest->bounds = bounds_val;
@@ -890,7 +894,7 @@ static int alias_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 		return -1;
 	}
 
-	target_type->flags |= (type->flags & TYPE_FLAGS_PERMISSIVE);
+	target_type->flags |= type->flags;
 
 	base_type = hashtab_search(state->base->p_types.table, id);
 	if (base_type == NULL) {
@@ -938,7 +942,7 @@ static int alias_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 
 		base_type->flavor = TYPE_ALIAS;
 		base_type->primary = target_type->s.value;
-		base_type->flags |= (target_type->flags & TYPE_FLAGS_PERMISSIVE);
+		base_type->flags |= target_type->flags;
 
 	}
 	/* the aliases map points from its value to its primary so when this module 
@@ -947,7 +951,7 @@ static int alias_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 
 	return 0;
 
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	free(new_id);
 	free(new_type);
@@ -958,7 +962,7 @@ static int alias_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 
 static int type_set_convert(type_set_t * types, type_set_t * dst,
 			    policy_module_t * mod, link_state_t * state
-			    __attribute__ ((unused)))
+			    __attribute__((unused)))
 {
 	unsigned int i;
 	ebitmap_node_t *tnode;
@@ -983,7 +987,7 @@ static int type_set_convert(type_set_t * types, type_set_t * dst,
 	dst->flags = types->flags;
 	return 0;
 
-      cleanup:
+cleanup:
 	return -1;
 }
 
@@ -1005,7 +1009,7 @@ static int type_set_or_convert(type_set_t * types, type_set_t * dst,
 	type_set_destroy(&ts_tmp);
 	return 0;
 
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	type_set_destroy(&ts_tmp);
 	return -1;
@@ -1034,14 +1038,15 @@ static int role_set_or_convert(role_set_t * roles, role_set_t * dst,
 	dst->flags |= roles->flags;
 	ebitmap_destroy(&tmp);
 	return 0;
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	ebitmap_destroy(&tmp);
 	return -1;
 }
 
-static int mls_level_convert(mls_semantic_level_t * src, mls_semantic_level_t * dst,
-			     policy_module_t * mod, link_state_t * state)
+static int mls_level_convert(mls_semantic_level_t * src,
+			     mls_semantic_level_t * dst, policy_module_t * mod,
+			     link_state_t * state)
 {
 	mls_semantic_cat_t *src_cat, *new_cat;
 
@@ -1076,8 +1081,9 @@ static int mls_level_convert(mls_semantic_level_t * src, mls_semantic_level_t * 
 	return 0;
 }
 
-static int mls_range_convert(mls_semantic_range_t * src, mls_semantic_range_t * dst,
-			     policy_module_t * mod, link_state_t * state)
+static int mls_range_convert(mls_semantic_range_t * src,
+			     mls_semantic_range_t * dst, policy_module_t * mod,
+			     link_state_t * state)
 {
 	int ret;
 	ret = mls_level_convert(&src->level[0], &dst->level[0], mod, state);
@@ -1131,7 +1137,7 @@ static int role_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
 		goto cleanup;
 	}
 	ebitmap_destroy(&e_tmp);
-	
+
 	if (role->flavor == ROLE_ATTRIB) {
 		ebitmap_init(&e_tmp);
 		ebitmap_for_each_bit(&role->roles, rnode, i) {
@@ -1151,7 +1157,7 @@ static int role_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
 
 	return 0;
 
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	ebitmap_destroy(&e_tmp);
 	return -1;
@@ -1204,7 +1210,7 @@ static int type_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
 	ebitmap_destroy(&e_tmp);
 	return 0;
 
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	ebitmap_destroy(&e_tmp);
 	return -1;
@@ -1240,20 +1246,22 @@ static int user_fix_callback(hashtab_key_t key, hashtab_datum_t datum,
 	if (mls_range_convert(&user->range, &new_user->range, mod, state))
 		goto cleanup;
 
-	if (mls_level_convert(&user->dfltlevel, &new_user->dfltlevel, mod, state))
+	if (mls_level_convert
+	    (&user->dfltlevel, &new_user->dfltlevel, mod, state))
 		goto cleanup;
 
 	return 0;
 
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	return -1;
 }
 
-static int (*fix_callback_f[SYM_NUM]) (hashtab_key_t key, hashtab_datum_t datum,
-				       void *datap) = {
-NULL, NULL, role_fix_callback, type_fix_callback, user_fix_callback,
-	    NULL, NULL, NULL};
+static int (*fix_callback_f[SYM_NUM])(hashtab_key_t key, hashtab_datum_t datum,
+				      void *datap) = {
+	NULL, NULL, role_fix_callback, type_fix_callback, user_fix_callback,
+	NULL, NULL, NULL
+};
 
 /*********** functions that copy AV rules ***********/
 
@@ -1307,9 +1315,8 @@ static int copy_avrule_list(avrule_t * list, avrule_t ** dst,
 						continue;
 					new_perm->data |=
 					    (1U <<
-					     (module->
-					      perm_map[cur_perm->tclass - 1][i] -
-					      1));
+					     (module->perm_map
+					      [cur_perm->tclass - 1][i] - 1));
 				}
 			} else {
 				new_perm->data =
@@ -1325,10 +1332,20 @@ static int copy_avrule_list(avrule_t * list, avrule_t ** dst,
 			tail_perm = new_perm;
 			cur_perm = cur_perm->next;
 		}
+
+		if (cur->xperms) {
+			new_rule->xperms = calloc(1, sizeof(*new_rule->xperms));
+			if (!new_rule->xperms)
+				goto cleanup;
+			memcpy(new_rule->xperms, cur->xperms,
+			       sizeof(*new_rule->xperms));
+		}
+
 		new_rule->line = cur->line;
 		new_rule->source_line = cur->source_line;
 		if (cur->source_filename) {
-			new_rule->source_filename = strdup(cur->source_filename);
+			new_rule->source_filename =
+			    strdup(cur->source_filename);
 			if (!new_rule->source_filename)
 				goto cleanup;
 		}
@@ -1344,7 +1361,7 @@ static int copy_avrule_list(avrule_t * list, avrule_t ** dst,
 	}
 
 	return 0;
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	avrule_destroy(new_rule);
 	free(new_rule);
@@ -1383,9 +1400,8 @@ static int copy_role_trans_list(role_trans_rule_t * list,
 			if (ebitmap_node_get_bit(cnode, i)) {
 				assert(module->map[SYM_CLASSES][i]);
 				if (ebitmap_set_bit(&new_rule->classes,
-						    module->
-						    map[SYM_CLASSES][i] - 1,
-						    1)) {
+						    module->map[SYM_CLASSES][i]
+						    - 1, 1)) {
 					goto cleanup;
 				}
 			}
@@ -1402,7 +1418,7 @@ static int copy_role_trans_list(role_trans_rule_t * list,
 		cur = cur->next;
 	}
 	return 0;
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	role_trans_rule_list_destroy(new_rule);
 	return -1;
@@ -1444,7 +1460,7 @@ static int copy_role_allow_list(role_allow_rule_t * list,
 		cur = cur->next;
 	}
 	return 0;
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	role_allow_rule_list_destroy(new_rule);
 	return -1;
@@ -1479,8 +1495,10 @@ static int copy_filename_trans_list(filename_trans_rule_t * list,
 		if (!new_rule->name)
 			goto err;
 
-		if (type_set_or_convert(&cur->stypes, &new_rule->stypes, module, state) ||
-		    type_set_or_convert(&cur->ttypes, &new_rule->ttypes, module, state))
+		if (type_set_or_convert
+		    (&cur->stypes, &new_rule->stypes, module, state)
+		    || type_set_or_convert(&cur->ttypes, &new_rule->ttypes,
+					   module, state))
 			goto err;
 
 		new_rule->tclass = module->map[SYM_CLASSES][cur->tclass - 1];
@@ -1532,12 +1550,13 @@ static int copy_range_trans_list(range_trans_rule_t * rules,
 			}
 		}
 
-		if (mls_range_convert(&rule->trange, &new_rule->trange, mod, state))
+		if (mls_range_convert
+		    (&rule->trange, &new_rule->trange, mod, state))
 			goto cleanup;
 	}
 	return 0;
 
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	range_trans_rule_list_destroy(new_rule);
 	return -1;
@@ -1571,9 +1590,9 @@ static int copy_cond_list(cond_node_t * list, cond_node_t ** dst,
 			/* expression nodes don't have a bool value of 0 - don't map them */
 			if (cur_expr->expr_type != COND_BOOL)
 				continue;
-			assert(module->map[SYM_BOOLS][cur_expr->bool - 1] != 0);
+			assert(module->map[SYM_BOOLS][cur_expr->bool -1]!=0);
 			cur_expr->bool =
-			    module->map[SYM_BOOLS][cur_expr->bool - 1];
+			    module->map[SYM_BOOLS][cur_expr->bool -1];
 		}
 		new_node->nbools = cur->nbools;
 		/* FIXME should COND_MAX_BOOLS be used here? */
@@ -1602,7 +1621,7 @@ static int copy_cond_list(cond_node_t * list, cond_node_t ** dst,
 		cur = cur->next;
 	}
 	return 0;
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	cond_node_destroy(new_node);
 	free(new_node);
@@ -1712,7 +1731,7 @@ static int copy_scope_index(scope_index_t * src, scope_index_t * dest,
 
 	return 0;
 
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	return -1;
 }
@@ -1820,7 +1839,7 @@ static int copy_avrule_block(link_state_t * state, policy_module_t * module,
 	state->last_avrule_block = new_block;
 	return 0;
 
-      cleanup:
+cleanup:
 	avrule_block_list_destroy(new_block);
 	return ret;
 }
@@ -1909,7 +1928,7 @@ static int scope_copy_callback(hashtab_key_t key, hashtab_datum_t datum,
 	}
 	return 0;
 
-      cleanup:
+cleanup:
 	ERR(state->handle, "Out of memory!");
 	return -1;
 }
@@ -2050,11 +2069,12 @@ static int is_decl_requires_met(link_state_t * state,
 			fparg.valuep = perm_value;
 			fparg.key = NULL;
 
-			(void)hashtab_map(cladatum->permissions.table, find_perm,
-				    &fparg);
+			(void)hashtab_map(cladatum->permissions.table,
+					  find_perm, &fparg);
 			if (fparg.key == NULL && cladatum->comdatum != NULL) {
-				rc = hashtab_map(cladatum->comdatum->permissions.table,
-						 find_perm, &fparg);
+				rc = hashtab_map(cladatum->comdatum->
+						 permissions.table, find_perm,
+						 &fparg);
 				assert(rc == 1);
 			}
 			perm_id = fparg.key;
@@ -2096,7 +2116,9 @@ static int debug_requirements(link_state_t * state, policydb_t * p)
 				struct find_perm_arg fparg;
 
 				class_datum_t *cladatum;
-				cladatum = p->class_val_to_struct[req.symbol_value - 1];
+				cladatum =
+				    p->class_val_to_struct[req.symbol_value -
+							   1];
 
 				fparg.valuep = req.perm_value;
 				fparg.key = NULL;
@@ -2107,13 +2129,17 @@ static int debug_requirements(link_state_t * state, policydb_t * p)
 					ERR(state->handle,
 					    "%s[%d]'s optional requirements were not met: class %s, permission %s",
 					    mod_name, cur->branch_list->decl_id,
-					    p->p_class_val_to_name[req.symbol_value - 1],
+					    p->p_class_val_to_name[req.
+								   symbol_value
+								   - 1],
 					    fparg.key);
 				} else {
 					ERR(state->handle,
 					    "%s[%d]'s global requirements were not met: class %s, permission %s",
 					    mod_name, cur->branch_list->decl_id,
-					    p->p_class_val_to_name[req.symbol_value - 1],
+					    p->p_class_val_to_name[req.
+								   symbol_value
+								   - 1],
 					    fparg.key);
 				}
 			} else {
@@ -2122,21 +2148,17 @@ static int debug_requirements(link_state_t * state, policydb_t * p)
 					    "%s[%d]'s optional requirements were not met: %s %s",
 					    mod_name, cur->branch_list->decl_id,
 					    symtab_names[req.symbol_type],
-					    p->sym_val_to_name[req.
-							       symbol_type][req.
-									    symbol_value
-									    -
-									    1]);
+					    p->
+					    sym_val_to_name[req.symbol_type]
+					    [req.symbol_value - 1]);
 				} else {
 					ERR(state->handle,
 					    "%s[%d]'s global requirements were not met: %s %s",
 					    mod_name, cur->branch_list->decl_id,
 					    symtab_names[req.symbol_type],
-					    p->sym_val_to_name[req.
-							       symbol_type][req.
-									    symbol_value
-									    -
-									    1]);
+					    p->
+					    sym_val_to_name[req.symbol_type]
+					    [req.symbol_value - 1]);
 				}
 			}
 		}
@@ -2161,7 +2183,8 @@ static void print_missing_requirements(link_state_t * state,
 
 		fparg.valuep = req->perm_value;
 		fparg.key = NULL;
-		(void)hashtab_map(cladatum->permissions.table, find_perm, &fparg);
+		(void)hashtab_map(cladatum->permissions.table, find_perm,
+				  &fparg);
 
 		ERR(state->handle,
 		    "%s's global requirements were not met: class %s, permission %s",
@@ -2172,7 +2195,8 @@ static void print_missing_requirements(link_state_t * state,
 		    "%s's global requirements were not met: %s %s",
 		    mod_name,
 		    symtab_names[req->symbol_type],
-		    p->sym_val_to_name[req->symbol_type][req->symbol_value - 1]);
+		    p->sym_val_to_name[req->symbol_type][req->symbol_value -
+							 1]);
 	}
 }
 
@@ -2262,7 +2286,7 @@ static int enable_avrules(link_state_t * state, policydb_t * pol)
 		}
 	}
 
-      out:
+out:
 	if (state->verbose)
 		debug_requirements(state, pol);
 
@@ -2406,7 +2430,7 @@ static int prepare_base(link_state_t * state, uint32_t num_mod_decls)
 }
 
 static int expand_role_attributes(hashtab_key_t key, hashtab_datum_t datum,
-				  void * data)
+				  void *data)
 {
 	char *id;
 	role_datum_t *role, *sub_attr;
@@ -2415,10 +2439,10 @@ static int expand_role_attributes(hashtab_key_t key, hashtab_datum_t datum,
 	ebitmap_node_t *rnode;
 
 	id = key;
-	role = (role_datum_t *)datum;
-	state = (link_state_t *)data;
+	role = (role_datum_t *) datum;
+	state = (link_state_t *) data;
 
-	if (strcmp(id, OBJECT_R) == 0){
+	if (strcmp(id, OBJECT_R) == 0) {
 		/* object_r is never a role attribute by far */
 		return 0;
 	}
@@ -2435,7 +2459,7 @@ restart:
 			sub_attr = state->base->role_val_to_struct[i];
 			if (sub_attr->flavor != ROLE_ATTRIB)
 				continue;
-			
+
 			/* remove the sub role attribute from the parent
 			 * role attribute's roles ebitmap */
 			if (ebitmap_set_bit(&role->roles, i, 0))
@@ -2451,7 +2475,7 @@ restart:
 				ERR(state->handle, "Out of memory!");
 				return -1;
 			}
-			
+
 			/* sub_attr->roles may contain other role attributes,
 			 * re-scan the parent role attribute's roles ebitmap */
 			goto restart;
@@ -2464,15 +2488,14 @@ restart:
 /* For any role attribute in a declaration's local symtab[SYM_ROLES] table,
  * copy its roles ebitmap into its duplicate's in the base->p_roles.table.
  */
-static int populate_decl_roleattributes(hashtab_key_t key, 
-					hashtab_datum_t datum,
-					void *data)
+static int populate_decl_roleattributes(hashtab_key_t key,
+					hashtab_datum_t datum, void *data)
 {
 	char *id = key;
 	role_datum_t *decl_role, *base_role;
-	link_state_t *state = (link_state_t *)data;
+	link_state_t *state = (link_state_t *) data;
 
-	decl_role = (role_datum_t *)datum;
+	decl_role = (role_datum_t *) datum;
 
 	if (strcmp(id, OBJECT_R) == 0) {
 		/* object_r is never a role attribute by far */
@@ -2482,8 +2505,8 @@ static int populate_decl_roleattributes(hashtab_key_t key,
 	if (decl_role->flavor != ROLE_ATTRIB)
 		return 0;
 
-	base_role = (role_datum_t *)hashtab_search(state->base->p_roles.table,
-						   id);
+	base_role = (role_datum_t *) hashtab_search(state->base->p_roles.table,
+						    id);
 	assert(base_role != NULL && base_role->flavor == ROLE_ATTRIB);
 
 	if (ebitmap_union(&base_role->roles, &decl_role->roles)) {
@@ -2494,26 +2517,25 @@ static int populate_decl_roleattributes(hashtab_key_t key,
 	return 0;
 }
 
-static int populate_roleattributes(link_state_t *state, policydb_t *pol)
+static int populate_roleattributes(link_state_t * state, policydb_t * pol)
 {
 	avrule_block_t *block;
 	avrule_decl_t *decl;
 
 	if (state->verbose)
 		INFO(state->handle, "Populating role-attribute relationship "
-			    "from enabled declarations' local symtab.");
+		     "from enabled declarations' local symtab.");
 
 	/* Iterate through all of the blocks skipping the first(which is the
 	 * global block, is required to be present and can't have an else).
 	 * If the block is disabled or not having an enabled decl, skip it.
 	 */
-	for (block = pol->global->next; block != NULL; block = block->next)
-	{
+	for (block = pol->global->next; block != NULL; block = block->next) {
 		decl = block->enabled;
 		if (decl == NULL || decl->enabled == 0)
 			continue;
 
-		if (hashtab_map(decl->symtab[SYM_ROLES].table, 
+		if (hashtab_map(decl->symtab[SYM_ROLES].table,
 				populate_decl_roleattributes, state))
 			return -1;
 	}
@@ -2567,6 +2589,13 @@ int link_modules(sepol_handle_t * handle,
 				ERR(state.handle,
 				    "Tried to link in an MLS module with a non-MLS base.");
 			goto cleanup;
+		}
+
+		if (mods[i]->policyvers > b->policyvers) {
+			WARN(state.handle,
+			     "Upgrading policy version from %u to %u\n",
+			     b->policyvers, mods[i]->policyvers);
+			b->policyvers = mods[i]->policyvers;
 		}
 
 		if ((modules[i] =
@@ -2651,14 +2680,14 @@ int link_modules(sepol_handle_t * handle,
 		retval = SEPOL_EREQ;
 		goto cleanup;
 	}
-	
+
 	/* Now do the escalation. */
 	if (hashtab_map(state.base->p_roles.table, expand_role_attributes,
 			&state))
 		goto cleanup;
 
 	retval = 0;
-      cleanup:
+cleanup:
 	for (i = 0; modules != NULL && i < len; i++) {
 		policy_module_destroy(modules[i]);
 	}
