@@ -6,12 +6,8 @@ OS = $(shell uname)
 
 ifeq ($(OS), Darwin)
 CC ?= /usr/bin/clang
-AR ?= /usr/bin/ar
-RANLIB  ?= /usr/bin/ranlib
 else ifeq ($(OS), Linux))
 CC ?= gcc
-AR ?= ar
-RANLIB ?= ranlib
 endif
 
 SRCS = $(wildcard *.c)

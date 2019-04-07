@@ -11,7 +11,6 @@ RANLIB  ?= /usr/bin/ranlib
 else ifeq ($(OS), Linux))
 CC ?= gcc
 AR ?= ar
-RANLIB ?= ranlib
 endif
 
 LIBA=libsepol.a
@@ -42,19 +41,19 @@ $(LIBA): $(OBJS)
 	@$(AR) rcs $@ $^
 	@echo "$^" | xargs -n1 | ts "AR"
 	@echo "AR $@"
-	@$(RANLIB) $@
-	@echo "ranlib $@"
 
 $(LIBSO): $(LOBJS)
 	@$(CC) $(CFLAGS) -fPIC $(LDFLAGS) -o $@ $(LOBJS)
-	@echo "CC $@" | xargs -n1
+	@echo "$@" | xargs -n1 | ts "CC"
 	$(POSTCOMPILE)
 
 %.o:  %.c 
-	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
+	@$(CC) $(CFLAGS) -fPIC -c -o $@ $<
+	@echo "$@" | xargs -n1 | ts "CC"
 
 %.lo:  %.c
-	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
+	@$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
+	@echo "$@" | xargs -n1 | ts "CC"
 
 clean:
 	@rm -f $(OBJS)
