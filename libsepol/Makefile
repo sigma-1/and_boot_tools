@@ -14,21 +14,29 @@ AR ?= ar
 RANLIB ?= ranlib
 endif
 
-LIBA = libsepol.a
+LIBA=libsepol.a
+ifeq ($(OS), Darwin)
+LIBSO=libsepol.dylib
+else
+LIBSO=libsepol.so
+endif
 
-SRCS = $(wildcard *.c) 
+SRCS = $(wildcard *.c)
 OBJS = $(patsubst %.c,%.o,$(sort $(SRCS)))
-DEPS = $(SRCS:.c=.d)
-
-DEPFLAGS = -MT $@ -MMD -MP -MF $*.Td
-POSTCOMPILE = @mv -f $*.Td $*.d
-
+LOBJS = $(patsubst %.c,%.lo,$(sort $(SRCS)))
 CFLAGS ?= -I . -Werror -Wall -W -Wundef -Wshadow -Wmissing-format-attribute -O2
-LDFLAGS ?= -static
 
-.PHONY: all clean indent
+override CFLAGS += -I. -D_GNU_SOURCE
 
-all: $(LIBA)
+ifeq ($(OS), Darwin)
+LDFLAGS ?= -Bdynamic -dynamiclib -undefined dynamic_lookup -flat_namespace -Bstatic
+else ifeq ($(OS), Linux)
+LDFLAGS ?= -undefined dynamic_lookup -flat_namespace -static
+endif
+
+.PHONY: all clean build indent
+
+all: $(LIBA) $(LIBSO)
 
 $(LIBA): $(OBJS)
 	@$(AR) rcs $@ $^
@@ -36,21 +44,26 @@ $(LIBA): $(OBJS)
 	@echo "AR $@"
 	@$(RANLIB) $@
 	@echo "ranlib $@"
-	chmod 644 $@
 
-$(OBJS): $(SRCS) $(DEPS)
-	@$(CC) $(DEPFLAGS) $(CFLAGS) -fPIC $(LDFLAGS) -c -o $@ $<
-	@echo "CC $@"
+$(LIBSO): $(LOBJS)
+	@$(CC) $(CFLAGS) -fPIC $(LDFLAGS) -o $@ $(LOBJS)
+	@echo "CC $@" | xargs -n1
 	$(POSTCOMPILE)
 
-$(DEPS): ;
+%.o:  %.c 
+	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
+
+%.lo:  %.c
+	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
 
 clean:
 	@rm -f $(OBJS)
 	@echo "$(OBJS)" | xargs -n1 | ts "clean"
-	@rm -f $(DEPS)
-	@echo "$(DEPS)" | xargs -n1 | ts "clean"
+	@rm -f $(LOBJS)
+	@echo "$(LOBJS)" | xargs -n1 | ts "clean"
 	@rm -f $(LIBA)
+	@echo "$(LIBA)" | xargs -n1 | ts "clean"
+	@rm -f $(LIBSO)
 	@echo "$(LIBA)" | xargs -n1 | ts "clean"
 
 indent:

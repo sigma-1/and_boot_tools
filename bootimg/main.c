@@ -6,6 +6,9 @@
 #ifndef WIN32
 #include <unistd.h>
 #endif
+#if defined(__APPLE__) && defined(__MACH__)
+#include <mach-o/dyld.h>
+#endif
 
 int main_unpackelf(int argc, char** argv);
 int main_unpackimg(int argc, char** argv);
@@ -85,7 +88,12 @@ int main(int argc, char **argv)
 	self = progname;
 
 #ifndef WIN32
+#if defined(__APPLE__) && defined(__MACH__)
+	uint32_t size = sizeof(path);
+	len = _NSGetExecutablePath(path, &size);
+#else
 	len = readlink("/proc/self/exe", path, sizeof(path));
+#endif
 	path[len] = 0;
 
 	for (i=0; i<len; i++) {

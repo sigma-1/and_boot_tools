@@ -12,9 +12,29 @@
 #include <sys/time.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+
+#if defined(__APPLE__) && defined(__MACH__)
+#include <sys/ioccom.h>
+#else
 #include <linux/types.h>
+#endif
 
 #include "input-event-codes.h"
+
+#if defined(__APPLE__) && defined(__MACH__)
+typedef u_int8_t        __u8;
+typedef u_int16_t       __u16;
+typedef u_int32_t       __u32;
+typedef u_int64_t       __u64;
+typedef int8_t          __s8;
+typedef int16_t         __s16;
+typedef int32_t         __s32;
+typedef int64_t         __s64;
+
+#define _IOC_NONE	IOC_VOID
+#define _IOC_READ	IOC_OUT
+#define _IOC_WRITE	IOC_IN
+#endif
 
 /*
  * The event structure itself

@@ -249,7 +249,7 @@ int seinject_dump_types(policydb_t *policy, char *filter)
 				bufpos += snprintf(buffer + bufpos, sizeof(buffer) - bufpos, "%s", policy->p_type_val_to_name[cur->datum.data - 1]);
 
 			bufpos += snprintf(buffer + bufpos, sizeof(buffer) - bufpos, "}\n");
-			printf(buffer);
+			printf("%s", buffer);
 		}
 	}
 

@@ -19,14 +19,20 @@
 */
 #ifndef _ANDROID_FILESYSTEM_CONFIG_H_
 #define _ANDROID_FILESYSTEM_CONFIG_H_
-//#include <sys/cdefs.h>
-//#include <sys/types.h>
+
+#if defined(__APPLE__) && defined(__MACH__)
+#include <sys/cdefs.h>
+#include <sys/types.h>
+#endif
+
 #include <stdint.h>
+
 #if defined(__ANDROID__)
 #include <linux/capability.h>
 #else
 #include "android_filesystem_capability.h"
 #endif
+
 #define CAP_MASK_LONG(cap_name)  (1ULL << (cap_name))
 /* This is the master Users and Groups config for the platform.
  * DO NOT EVER RENUMBER

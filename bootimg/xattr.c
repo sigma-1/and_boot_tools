@@ -8,6 +8,25 @@
 #include <stdlib.h>
 #include <sys/syscall.h>
 
+#if defined(__APPLE__) && defined(__MACH__)
+#include <errno.h>
+#include <pthread.h>
+
+#define VG_DARWIN_SYSCALL_CLASS_SHIFT     24
+#define VG_DARWIN_SYSCALL_CLASS_MASK      (0xFF << VG_DARWIN_SYSCALL_CLASS_SHIFT)
+#define VG_DARWIN_SYSCALL_NUMBER_MASK     (~VG_DARWIN_SYSCALL_CLASS_MASK)
+
+#define VG_DARWIN_SYSCALL_CLASS_UNIX      2       /* Unix/BSD */
+
+#define VG_DARWIN_SYSCALL_CONSTRUCT_UNIX(syscall_number) \
+    ((VG_DARWIN_SYSCALL_CLASS_UNIX << VG_DARWIN_SYSCALL_CLASS_SHIFT) | \
+     (VG_DARWIN_SYSCALL_NUMBER_MASK & (syscall_number)))
+
+#define	__NR_getxattr       VG_DARWIN_SYSCALL_CONSTRUCT_UNIX(234)
+#define	__NR_setxattr       VG_DARWIN_SYSCALL_CONSTRUCT_UNIX(236)
+#define	__NR_listxattr      VG_DARWIN_SYSCALL_CONSTRUCT_UNIX(240)
+#endif
+
 int main_setxattr(int argc, char **argv)
 {
 	int		rc;

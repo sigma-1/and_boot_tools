@@ -1,28 +1,79 @@
-# Author: Yannik Sembritzki
-# License: GPLv2
+# Authors:  Yannik Sembritzki
+#           Vidir Alexander Jonsson <valex@valex.is>
+# License:  GPLv2
 
-# dependency generation loosely based on http://make.mad-scientist.net/papers/advanced-auto-dependency-generation
-CFLAGS+=-I ../libsepol -I ../include --sysroot=$(SYSROOT)
-LIBS="../libsepol/libsepol.a"
+OS = $(shell uname)
+
+ifeq ($(OS), Darwin)
+CC ?= /usr/bin/clang
+AR ?= /usr/bin/ar
+RANLIB  ?= /usr/bin/ranlib
+else ifeq ($(OS), Linux))
+CC ?= gcc
+AR ?= ar
+RANLIB ?= ranlib
+endif
+
 SRCS = $(wildcard *.c)
-OBJS=$(SRCS:.c=.o)
-DEPS=$(SRCS:.c=.d)
+OBJS = $(patsubst %.c,%.o,$(sort $(SRCS)))
+DEPS = $(patsubst %.c,%.d,$(sort $(SRCS)))
+LIBS = $(wildcard libs/*.a)
+
+ifeq ($(OS), Darwin)
+LIBSCP := $(shell mkdir -p libs && cp ../libsepol/*.a libs && \
+			cp ../libinotify-kqueue/.libs/*.a libs)
+else ifeq ($(OS), Linux))
+LIBSCP := $(shell mkdir -p libs && cp ../libsepol/*.a)
+endif
+
+ifeq ($(OS), Darwin)
+CFLAGS += -I../libinotify-kqueue -I../libsepol -I../include \
+		  -ffunction-sections -fdata-sections \
+		  -Wno-deprecated-declarations -Wno-address-of-packed-member \
+		  -O3 --sysroot=$(SYSROOT)
+else ifeq ($(OS), Linux))
+CFLAGS += -I../libinotify-kqueue -I../libsepol -I../include \
+		  -ffunction-sections -fdata-sections \
+		  -O3 --sysroot=$(SYSROOT)
+endif
+
+ifeq ($(OS), Darwin)
+LDFLAGS += -Wl, -dead_strip -Llibs -Bstatic
+else ifeq ($(OS), Linux))
+LDFLAGS += -Wl,--gc-sections -Llibs -static
+endif
+
 DEPFLAGS = -MT $@ -MMD -MP -MF $*.Td
 POSTCOMPILE = @mv -f $*.Td $*.d
-.PHONY: all clean build
+
+.PHONY: all clean build indent
 
 all: bootimg
 
 bootimg: $(OBJS)
-	$(CC) -o bootimg $(CFLAGS) $(OBJS) -static $(LIBS)
+	$(LIBSCP)
+	@$(CC) -o bootimg $(CFLAGS) -fPIC $(OBJS) $(LDFLAGS) $(LIBS)
+	@echo "$@" | xargs -n1
 
-%.o: %.c %.d 
-	$(CC) -c $(DEPFLAGS) $(CFLAGS) $< -o $@
+%.o: %.c %.d
+	@$(CC) -c $(DEPFLAGS) $(CFLAGS) -fPIC $< -o $@
+	@echo "$@" | xargs -n1 | ts "CC"
 	$(POSTCOMPILE)
 
 %.d: ;
 
 clean:
-	rm -f *.o *.d bootimg
+	@rm -rf libs
+	@echo "$(LIBS)" | xargs -n1 | ts "clean"
+	@rm -f *.o
+	@echo "$(OBJS)" | xargs -n1 | ts "clean"
+	@rm -f *.d
+	@echo "$(DEPS)" | xargs -n1 | ts "clean"
+	@rm -f bootimg
+	@echo "bootimg" | xargs -n1 | ts "clean"
+
+
+indent:
+	../scripts/Lindent $(wildcard *.[ch])
 
 -include $(DEPS)

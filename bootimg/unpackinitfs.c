@@ -4,7 +4,11 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#if defined(__APPLE__) && defined(__MACH__)
+#include <utime.h>
+#else
 #include <sys/utime.h>
+#endif
 #include <errno.h>
 #include <time.h>
 

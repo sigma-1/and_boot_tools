@@ -117,7 +117,7 @@ int main_unpackimg(int argc, char** argv)
 		fout = fopen(out_file[i], "wb");
 		fwrite(buffer, 1, obj_len[i], fout);
 		fclose(fout);
-		printf("BOARD_%s_OFFSET=\"%08x\"\n", obj_name[i], obj_off[i]);
+		printf("BOARD_%s_OFFSET=\"%08zx\"\n", obj_name[i], obj_off[i]);
 		if (obj_len[i] > 4 && 0 == memcmp(buffer, "QCDT", 4))
 			printf("BOARD_QCDT=\"1\"\n");
 		free(buffer);

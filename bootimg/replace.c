@@ -3,7 +3,9 @@
 #include <stdint.h>
 #include <string.h>
 #include <sys/types.h>
+#if !defined(__APPLE__) && !defined(__MACH__)
 #include <sys/utime.h>
+#endif
 #include <sys/stat.h>
 #include <fcntl.h>
 #ifndef WIN32

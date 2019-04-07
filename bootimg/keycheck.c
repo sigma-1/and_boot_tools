@@ -3,11 +3,14 @@
 #include <stdlib.h>
 #include <dirent.h>
 #include <fcntl.h>
+#include <string.h>
+#include <limits.h>
+#include <unistd.h>
+#include <errno.h>
 #include <sys/ioctl.h>
 #include <sys/inotify.h>
 #include <sys/poll.h>
 #include <linux/input.h>
-#include <errno.h>
 
 static struct pollfd *ufds;
 static char **device_names;
