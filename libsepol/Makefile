@@ -1,98 +1,57 @@
-# Installation directories.
-PREFIX ?= /usr
-INCLUDEDIR ?= $(PREFIX)/include
-LIBDIR ?= $(PREFIX)/lib
-SHLIBDIR ?= /lib
-RANLIB ?= ranlib
-CILDIR ?= ../cil
+# Authors:  Yannik Sembritzki
+#           Vidir Alexander Jonsson <valex@valex.is>
+# License:  GPLv2
 
-VERSION = $(shell cat ../VERSION)
-LIBVERSION = 1
+OS = $(shell uname)
 
-LEX = flex
-CIL_GENERATED = $(CILDIR)/src/cil_lexer.c
-
-LIBA=libsepol.a 
-TARGET=libsepol.so
-LIBPC=libsepol.pc
-LIBMAP=libsepol.map
-LIBSO=$(TARGET).$(LIBVERSION)
-OBJS= $(patsubst %.c,%.o,$(sort $(wildcard *.c)))
-LOBJS= $(patsubst %.c,%.lo,$(sort $(wildcard *.c)))
-CFLAGS ?= -Werror -Wall -W -Wundef -Wshadow -Wmissing-format-attribute -O2
-
-override CFLAGS += -I. -I../include -D_GNU_SOURCE
-
-ifneq ($(DISABLE_CIL),y)
-OBJS += $(sort $(patsubst %.c,%.o,$(sort $(wildcard $(CILDIR)/src/*.c)) $(CIL_GENERATED)))
-LOBJS += $(sort $(patsubst %.c,%.lo,$(sort $(wildcard $(CILDIR)/src/*.c)) $(CIL_GENERATED)))
-override CFLAGS += -I$(CILDIR)/include
-endif
-
-LD_SONAME_FLAGS=-soname,$(LIBSO),--version-script=$(LIBMAP),-z,defs
-
-LN=ln
-OS := $(shell uname)
 ifeq ($(OS), Darwin)
-LD_SONAME_FLAGS=-install_name,$(LIBSO)
-LDFLAGS += -undefined dynamic_lookup
-LN=gln
+CC ?= /usr/bin/clang
+AR ?= /usr/bin/ar
+RANLIB  ?= /usr/bin/ranlib
+else ifeq ($(OS), Linux))
+CC ?= gcc
+AR ?= ar
+RANLIB ?= ranlib
 endif
 
-all: $(LIBA) $(LIBSO) $(LIBPC)
+LIBA = libsepol.a
 
+SRCS = $(wildcard *.c) 
+OBJS = $(patsubst %.c,%.o,$(sort $(SRCS)))
+DEPS = $(SRCS:.c=.d)
 
-$(LIBA):  $(OBJS)
-	$(AR) rcs $@ $^
-	$(RANLIB) $@
+DEPFLAGS = -MT $@ -MMD -MP -MF $*.Td
+POSTCOMPILE = @mv -f $*.Td $*.d
 
-$(LIBSO): $(LOBJS) $(LIBMAP)
-	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $(LOBJS) -Wl,$(LD_SONAME_FLAGS)
-	ln -sf $@ $(TARGET) 
+CFLAGS ?= -I . -Werror -Wall -W -Wundef -Wshadow -Wmissing-format-attribute -O2
+LDFLAGS ?= -static
 
-$(LIBPC): $(LIBPC).in ../VERSION
-	sed -e 's/@VERSION@/$(VERSION)/; s:@prefix@:$(PREFIX):; s:@libdir@:$(LIBDIR):; s:@includedir@:$(INCLUDEDIR):' < $< > $@
+.PHONY: all clean indent
 
-$(LIBMAP): $(LIBMAP).in
-ifneq ($(DISABLE_CIL),y)
-	cp $< $@
-else
-	sed -e '/^\s*cil_/d' < $< > $@
-endif
+all: $(LIBA)
 
-ifneq ($(DISABLE_CIL),y)
-$(CILDIR)/src/cil_lexer.o: $(CILDIR)/src/cil_lexer.c
-	$(CC) $(filter-out -Werror, $(CFLAGS)) -fPIC -c -o $@ $<
+$(LIBA): $(OBJS)
+	@$(AR) rcs $@ $^
+	@echo "$^" | xargs -n1 | ts "AR"
+	@echo "AR $@"
+	@$(RANLIB) $@
+	@echo "ranlib $@"
+	chmod 644 $@
 
-$(CILDIR)/src/cil_lexer.lo: $(CILDIR)/src/cil_lexer.c
-	$(CC) $(filter-out -Werror, $(CFLAGS)) -fPIC -DSHARED -c -o $@ $<
+$(OBJS): $(SRCS) $(DEPS)
+	@$(CC) $(DEPFLAGS) $(CFLAGS) -fPIC $(LDFLAGS) -c -o $@ $<
+	@echo "CC $@"
+	$(POSTCOMPILE)
 
-$(CILDIR)/src/cil_lexer.c: $(CILDIR)/src/cil_lexer.l
-	$(LEX) -o $@ $<
+$(DEPS): ;
 
-endif
-
-%.o:  %.c 
-	$(CC) $(CFLAGS) -fPIC -c -o $@ $<
-
-%.lo:  %.c
-	$(CC) $(CFLAGS) -fPIC -DSHARED -c -o $@ $<
-
-install: all
-	test -d $(DESTDIR)$(LIBDIR) || install -m 755 -d $(DESTDIR)$(LIBDIR)
-	install -m 644 $(LIBA) $(DESTDIR)$(LIBDIR)
-	test -d $(DESTDIR)$(SHLIBDIR) || install -m 755 -d $(DESTDIR)$(SHLIBDIR)
-	install -m 755 $(LIBSO) $(DESTDIR)$(SHLIBDIR)
-	test -d $(DESTDIR)$(LIBDIR)/pkgconfig || install -m 755 -d $(DESTDIR)$(LIBDIR)/pkgconfig
-	install -m 644 $(LIBPC) $(DESTDIR)$(LIBDIR)/pkgconfig
-	$(LN) -sf --relative $(DESTDIR)$(SHLIBDIR)/$(LIBSO) $(DESTDIR)$(LIBDIR)/$(TARGET)
-
-relabel:
-	/sbin/restorecon $(DESTDIR)$(SHLIBDIR)/$(LIBSO)
-
-clean: 
-	-rm -f $(LIBPC) $(LIBMAP) $(OBJS) $(LOBJS) $(LIBA) $(LIBSO) $(TARGET) $(CIL_GENERATED)
+clean:
+	@rm -f $(OBJS)
+	@echo "$(OBJS)" | xargs -n1 | ts "clean"
+	@rm -f $(DEPS)
+	@echo "$(DEPS)" | xargs -n1 | ts "clean"
+	@rm -f $(LIBA)
+	@echo "$(LIBA)" | xargs -n1 | ts "clean"
 
 indent:
-	../../scripts/Lindent $(wildcard *.[ch])
-
+	../scripts/Lindent $(wildcard *.[ch])
