@@ -62,9 +62,9 @@ int usage(char* progname) {
 	for (i = 0; i < ARRAY_SIZE(applets); i++) {
 		fprintf(stderr, "%s", applets[i].name);
 		if (i != ARRAY_SIZE(applets)-1)
-			fprintf(stderr, ", ");
+			fprintf(stderr, "\n");
 	}
-	fprintf(stderr, "\n");
+	fprintf(stderr, "\n\n");
 
 	return 200;
 }
