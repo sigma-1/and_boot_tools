@@ -17,18 +17,19 @@ LIBS = $(wildcard libs/*.a)
 
 ifeq ($(OS), Darwin)
 LIBSCP := $(shell mkdir -p libs && cp ../libsepol/*.a libs && \
-			cp ../libinotify-kqueue/.libs/*.a libs)
+			cp ../libmincrypt/*.a libs && cp ../libinotify/.libs/*.a libs)
 else ifeq ($(OS), Linux))
-LIBSCP := $(shell mkdir -p libs && cp ../libsepol/*.a)
+LIBSCP := $(shell mkdir -p libs && cp ../libsepol/*.a &&
+		    cp ../libmincrypt/*.a libs)
 endif
 
 ifeq ($(OS), Darwin)
-CFLAGS += -I../libinotify-kqueue -I../libsepol -I../include \
+CFLAGS += -I../libinotify -I../libmincrypt -I../include \
 		  -ffunction-sections -fdata-sections \
 		  -Wno-deprecated-declarations -Wno-address-of-packed-member \
 		  -O3 --sysroot=$(SYSROOT)
 else ifeq ($(OS), Linux))
-CFLAGS += -I../libinotify-kqueue -I../libsepol -I../include \
+CFLAGS += -I../libsepol -I../libmincrypt -I../include \
 		  -ffunction-sections -fdata-sections \
 		  -O3 --sysroot=$(SYSROOT)
 endif

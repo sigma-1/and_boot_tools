@@ -369,7 +369,7 @@ void *cmalloc(size_t s)
 
 int policydb_index_decls(sepol_handle_t * handle, policydb_t * p);
 
-int add_type(policydb_t *policy, char *type, type_datum_t** td_ret)
+int seinject_add_type(policydb_t *policy, char *type, type_datum_t** td_ret)
 {
 	type_datum_t	*td;
 	uint32_t		value = 0;
@@ -421,7 +421,7 @@ int add_type(policydb_t *policy, char *type, type_datum_t** td_ret)
 	return 0;
 }
 
-int add_rule(policydb_t *policy, char *s, char *t, char *c, char *p)
+int seinject_add_rule(policydb_t *policy, char *s, char *t, char *c, char *p)
 {
 	type_datum_t *src, *tgt;
 	class_datum_t *cls;
@@ -500,7 +500,7 @@ int add_rule(policydb_t *policy, char *s, char *t, char *c, char *p)
 	return 0;
 }
 
-int add_genfs(policydb_t *policy, char *fs, char *p, char *c)
+int seinject_add_genfs(policydb_t *policy, char *fs, char *p, char *c)
 {
 	type_datum_t		*tgt;
 	genfs_t				*genfs;
@@ -553,7 +553,7 @@ int add_genfs(policydb_t *policy, char *fs, char *p, char *c)
 	return 0;
 }
 
-int add_transition(policydb_t *policy, char *srcS, char *origS, char *tgtS, char *c)
+int seinject_add_transition(policydb_t *policy, char *srcS, char *origS, char *tgtS, char *c)
 {
 	type_datum_t *src, *tgt, *orig;
 	class_datum_t *cls;
@@ -596,7 +596,7 @@ int add_transition(policydb_t *policy, char *srcS, char *origS, char *tgtS, char
 	return 0;
 }
 
-int add_attr(policydb_t *policy, char *type, char *attr)
+int seinject_add_attr(policydb_t *policy, char *type, char *attr)
 {
 	type_datum_t		*td, *ad;
 	unsigned int		i;
@@ -886,7 +886,7 @@ int main_seinject(int argc, char **argv)
 		type_datum_t *td = hashtab_search(policydb.p_types.table, type);
 
 		if (!td) {
-			rc = add_type(&policydb, type, &td);
+			rc = seinject_add_type(&policydb, type, &td);
 			if (SEPOL_OK != rc) {
 				seinject_msg(rc, "Could not create type %s", type);
 				exit(rc);
@@ -899,7 +899,7 @@ int main_seinject(int argc, char **argv)
 		}
 	} else if (genfs) {
 		/* Add genfs entry */
-		rc = add_genfs(&policydb, genfs, perm, target);
+		rc = seinject_add_genfs(&policydb, genfs, perm, target);
 		if (SEPOL_OK != rc) {
 			seinject_msg(rc, "Could not add genfs rule");
 			exit(rc);
@@ -909,14 +909,14 @@ int main_seinject(int argc, char **argv)
 		remove_mls_contraints(&policydb, mls);
 
 	} else if (fcon) {
-		rc = add_transition(&policydb, source, fcon, target, clazz);
+		rc = seinject_add_transition(&policydb, source, fcon, target, clazz);
 		if (SEPOL_OK != rc) {
 			seinject_msg(rc, "Could not add file transition rule");
 			exit(rc);
 		}
 
 	} else if (attr) {
-		rc = add_attr(&policydb, source, attr);
+		rc = seinject_add_attr(&policydb, source, attr);
 		if (SEPOL_OK != rc) {
 			seinject_msg(rc, "Could not add attr to type");
 			exit(rc);
@@ -927,7 +927,7 @@ int main_seinject(int argc, char **argv)
 
 		perm_token = strtok_r(perm, ",", &perm_saveptr);
 		while (perm_token) {
-			rc = add_rule(&policydb, source, target, clazz, perm_token);
+			rc = seinject_add_rule(&policydb, source, target, clazz, perm_token);
 			if (rc > rc_total)
 				rc_total = rc;
 			perm_token = strtok_r(NULL, ",", &perm_saveptr);

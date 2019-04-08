@@ -24,8 +24,12 @@ int main_fctxinject(int argc, char **argv);
 int main_readta(int argc, char **argv);
 int main_zip(int argc, char **argv);
 int main_dtbinfo(int argc, char **argv);
+int main_dtbtool(int argc, char **argv);
 int main_offsetof(int argc, char **argv);
 int main_replace(int argc, char **argv);
+int main_mboot(int argc, char **argv);
+int main_magiskpolicy(int argc, char *argv[]);
+int main_hexpatch(int argc, char **argv);
 
 typedef struct APPLET {
 	char	*name;
@@ -49,8 +53,12 @@ static const APPLET applets[] = {
 	{ "readta", main_readta },
 	{ "zip", main_zip },
 	{ "dtbinfo", main_dtbinfo },
+	{ "dtbtool", main_dtbtool},
 	{ "offsetof", main_offsetof },
 	{ "replace", main_replace },
+	{ "mboot", main_mboot },
+	{ "magiskpolicy", main_magiskpolicy },
+	{ "hexpatch", main_hexpatch }
 };
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))

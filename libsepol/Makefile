@@ -7,7 +7,6 @@ OS = $(shell uname)
 ifeq ($(OS), Darwin)
 CC ?= /usr/bin/clang
 AR ?= /usr/bin/ar
-RANLIB  ?= /usr/bin/ranlib
 else ifeq ($(OS), Linux))
 CC ?= gcc
 AR ?= ar
@@ -23,7 +22,7 @@ endif
 SRCS = $(wildcard *.c)
 OBJS = $(patsubst %.c,%.o,$(sort $(SRCS)))
 LOBJS = $(patsubst %.c,%.lo,$(sort $(SRCS)))
-CFLAGS ?= -I . -Werror -Wall -W -Wundef -Wshadow -Wmissing-format-attribute -O2
+CFLAGS ?= -I . -I../include -Werror -Wall -W -Wundef -Wshadow -Wmissing-format-attribute -O2
 
 override CFLAGS += -I. -D_GNU_SOURCE
 
