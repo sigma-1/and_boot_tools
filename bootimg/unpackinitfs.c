@@ -175,7 +175,7 @@ int main_unpackinitfs(int argc, char** argv)
 			}
 		}
 
-		fprintf(stderr, "Usage: %s [input_file | -d target directory kernel]\n\n", argv[0]);
+		fprintf(stderr, "Usage: %s [ input_file | -d <target-directory> <kernel> ]\n\n", argv[0]);
 		return 200;
 	}
 

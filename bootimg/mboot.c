@@ -31,7 +31,7 @@ char *filename = "boot.img";
 int mboot_usage(int val)
 {
 	fprintf(stderr,
-		"Usage: mboot.py [-u] [-f FILE] [-d DIR]\n\n"
+		"Usage: mboot [-u] [-f FILE] [-d DIR]\n\n"
 		"Unpack an Intel boot image into separate files, OR,\n"
 		"pack a directory with kernel/ramdisk/bootstub into an Intel boot image.\n\n"
 		"Options:\n"

@@ -833,7 +833,7 @@ int main_seinject(int argc, char **argv)
 	}
 
 	if (i < argc || argc == 1 || ((!source || !target || !clazz || !perm) && !attr && !fcon && !type && !mls && !dump_types && !dump_classes && !dump_genfs &&(!genfs || !target))) {
-		fprintf(stderr, "   -l\n");
+		fprintf(stderr, "%s -l\n", argv[0]);
 		fprintf(stderr, "    Set trace level 0-3 (default 1)\n\n");
 		fprintf(stderr, "%s -s <source type> -t <target type> -c <class> -p <perm>[,<perm2>,<perm3>,...] [-P <policy file>] [-o <output file>] [-l|--load]\n", argv[0]);
 		fprintf(stderr, "    Add AV rule\n\n");

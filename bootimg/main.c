@@ -37,28 +37,30 @@ typedef struct APPLET {
 } APPLET;
 
 static const APPLET applets[] = {
-	{ "unpackelf", main_unpackelf },
-	{ "unpackimg", main_unpackimg },
-	{ "mkimg", main_mkimg },
-	{ "unpackinitfs", main_unpackinitfs },
-	{ "mkinitfs", main_mkinitfs },
+	{ "dtbinfo", main_dtbinfo },
+	{ "dtbtool", main_dtbtool},
+	{ "fctxinject", main_fctxinject },
 	{ "getarch", main_getarch },
+	{ "hexpatch", main_hexpatch },
 #ifndef WIN32
 	{ "keycheck", main_keycheck },
 	{ "listxattr", main_listxattr },
+#endif
+	{ "magiskpolicy", main_magiskpolicy },
+	{ "mboot", main_mboot },
+	{ "mkimg", main_mkimg },
+	{ "mkinitfs", main_mkinitfs },
+	{ "offsetof", main_offsetof },
+	{ "readta", main_readta },
+	{ "replace", main_replace },
+	{ "seinject", main_seinject },
+#ifndef WIN32
 	{ "setxattr", main_setxattr },
 #endif
-	{ "seinject", main_seinject },
-	{ "fctxinject", main_fctxinject },
-	{ "readta", main_readta },
-	{ "zip", main_zip },
-	{ "dtbinfo", main_dtbinfo },
-	{ "dtbtool", main_dtbtool},
-	{ "offsetof", main_offsetof },
-	{ "replace", main_replace },
-	{ "mboot", main_mboot },
-	{ "magiskpolicy", main_magiskpolicy },
-	{ "hexpatch", main_hexpatch }
+	{ "unpackelf", main_unpackelf },
+	{ "unpackimg", main_unpackimg },
+	{ "unpackinitfs", main_unpackinitfs },
+	{ "zip", main_zip }
 };
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
@@ -66,9 +68,10 @@ static const APPLET applets[] = {
 int usage(char* progname) {
 	int i;
 
-	fprintf(stderr, "%s multicall binary\nAvailable commands:\n\n", progname);
+    fprintf(stderr, "Usage: %s <command> [ -|--option <argument> ]\n", progname);
+	fprintf(stderr, "Available commands:\n\n");
 	for (i = 0; i < ARRAY_SIZE(applets); i++) {
-		fprintf(stderr, "%s", applets[i].name);
+		fprintf(stderr, "    %s", applets[i].name);
 		if (i != ARRAY_SIZE(applets)-1)
 			fprintf(stderr, "\n");
 	}
