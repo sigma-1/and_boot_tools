@@ -30,15 +30,17 @@ int main_replace(int argc, char **argv);
 int main_mboot(int argc, char **argv);
 int main_magiskpolicy(int argc, char *argv[]);
 int main_hexpatch(int argc, char **argv);
+int main_elftool(int argc, char** argv);
 
 typedef struct APPLET {
 	char	*name;
-	 int	(*func_main)(int, char**);
+	int	(*func_main)(int, char**);
 } APPLET;
 
 static const APPLET applets[] = {
 	{ "dtbinfo", main_dtbinfo },
 	{ "dtbtool", main_dtbtool},
+	{ "elftool", main_elftool},
 	{ "fctxinject", main_fctxinject },
 	{ "getarch", main_getarch },
 	{ "hexpatch", main_hexpatch },

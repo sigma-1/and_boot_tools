@@ -1,5 +1,5 @@
 /* 
- * File:   packelf.cpp
+ * File:   elftool.c
  * Author: srl3gx@gmail.com
  *
  * Packing and unpacking boot image of sony mobile devices
@@ -9,19 +9,16 @@
  * 
  */
 
-#include <iostream>
-#include <string>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "elfboot.h"
-
-using namespace std;
+#include <limits.h>
+#include <elfboot.h>
 
 void handlePackElf(int, char**);
 void handleUnpackElf(int, char**);
-void usage();
-unsigned int getAddressFromHeader(string);
+void usage_elftool();
+unsigned int getAddressFromHeader(char*);
 
 long getFileSize(FILE*);
 void writeElfHeader(FILE*, unsigned int, int);
@@ -29,44 +26,45 @@ void writeElfHeader(FILE*, unsigned int, int);
 struct elfphdr part_headers[5];
 
 struct file {
-    string file_path;
+    char* file_path;
     unsigned int address;
     unsigned int size;
-    string flag;
+    char* flag;
     unsigned int offset;
 };
 
 void writeElfPHeader(FILE*, struct file);
 
-int main(int argc, char** argv) {
+int main_elftool(int argc, char** argv) {
     if (argc <= 1) {
-        printf("Invalid format...EXIT\n");
-        usage();
+        usage_elftool();
     }
     char* arg = argv[1];
     if (strcmp(arg, "pack") == 0) {
-        printf("Packing elf file.....\n");
+        printf("Packing ELF file...\n");
         handlePackElf(argc, argv);
     } else if (strcmp(arg, "unpack") == 0) {
-        printf("Unpacking elf file.....\n");
+        printf("Unpacking ELF file...\n");
         handleUnpackElf(argc, argv);
+    } else if (strcmp(arg, "help") == 0) {
+        usage_elftool();
     } else {
-        printf("Invalid format....EXIT");
-        usage();
+        printf("Error: Invalid format.\n");
+        usage_elftool();
     }
     return 0;
 }
 
 void handlePackElf(int argc, char** argv) {
     struct file files[argc - 1];
-    string output_path;
+    char *output_path = "./";
     FILE *header;
     FILE *temp_file;
     int parts = 0;
     int offset = 4096;
     for (int i = 2; i < argc; i++) {
         char* arg = argv[i];
-        string arguments[3];
+        char* arguments[3];
         if (strcmp(arg, "-o") == 0 || strcmp(arg, "--output") == 0) {
             i++;
             output_path = argv[i];
@@ -80,16 +78,16 @@ void handlePackElf(int argc, char** argv) {
             k++;
         }
         long address;
-        if (arguments[1].compare("cmdline") == 0) {
+        if (strcmp(arguments[1], "cmdline") == 0) {
             address = 0L;
             arguments[2] = "cmdline";
-        } else if (arguments[0].compare("header") == 0) {
-            header = fopen(arguments[1].c_str(), "rb");
+        } else if (strcmp(arguments[0], "header") == 0) {
+            header = fopen(arguments[1], "rb");
             struct elf_header boot_header;
             fseek(header, 0, SEEK_SET);
             fread(&boot_header, elf_header_size, 1, header);
             if (memcmp(boot_header.e_ident, elf_magic, 8) != 0) {
-                printf("Header file is not a valid elf image header...Exit");
+                printf("Error: Header file is not a valid ELF image header.\n");
                 exit(EXIT_FAILURE);
             }
             int offset = 52;
@@ -103,28 +101,28 @@ void handlePackElf(int argc, char** argv) {
             fclose(header);
             continue;
         } else {
-            address = strtol(arguments[1].c_str(), NULL, 16);
+            address = strtol(arguments[1], NULL, 16);
             if (address == 0) {
-                if (arguments[1].empty()){
+                if (strlen(arguments[1]) == 0){
                     arguments[1] = "kernel";
                 }
                 arguments[2] = arguments[1];
                 address = getAddressFromHeader(arguments[1]);
             }
         }
-        printf("Reading file %s\n", arguments[0].c_str());
-        temp_file = fopen(arguments[0].c_str(), "r");
+        printf("Reading file %s\n", arguments[0]);
+        temp_file = fopen(arguments[0], "r");
         if (temp_file == NULL) {
-            printf("Failed to open %s\n", arguments[0].c_str());
+            printf("Failed to open %s\n", arguments[0]);
             exit(EXIT_FAILURE);
         }
         long size = getFileSize(temp_file);
         struct file f = {
             arguments[0],
-            static_cast<unsigned int>(address),
-            static_cast<unsigned int>(size),
+            (unsigned int)address,
+            (unsigned int)size,
             arguments[2],
-            static_cast<unsigned int>(offset)
+            (unsigned int)offset
         };
         offset += size;
         fclose(temp_file);
@@ -133,19 +131,14 @@ void handlePackElf(int argc, char** argv) {
     }
 
     if (parts < 2) {
-        printf("Kernel and ramdisk must be specified....Error\n");
-        usage();
+        printf("Error: Kernel and ramdisk must be specified.\n");
+        usage_elftool();
     }
 
-    if (output_path.empty()) {
-        printf("Output path must be specified....Error\n");
-        usage();
-    }
-
-    FILE* output_file = fopen(output_path.c_str(), "wb");
+    FILE* output_file = fopen(output_path, "wb");
 
     if (output_file == NULL) {
-        printf("Invalid path %s\n", output_path.c_str());
+        printf("Error: Invalid path %s\n", output_path);
     }
 
     writeElfHeader(output_file, files[0].address, parts);
@@ -156,14 +149,14 @@ void handlePackElf(int argc, char** argv) {
     for (int i = 0; i < parts; i++) {
         struct file current_file = files[i];
         fseek(output_file, current_file.offset, SEEK_SET);
-        printf("Writing file : %s to elf image\n", current_file.file_path.c_str());
-        temp_file = fopen(current_file.file_path.c_str(), "r");
+        printf("Writing file : %s to ELF image\n", current_file.file_path);
+        temp_file = fopen(current_file.file_path, "r");
         if (temp_file == NULL) {
-            printf("Cannot read file %s\n", current_file.file_path.c_str());
+            printf("Error: Cannot read file %s\n", current_file.file_path);
             exit(EXIT_FAILURE);
         }
         int size = getFileSize(temp_file);
-        unsigned char* data = new unsigned char [size];
+        unsigned char* data = malloc(sizeof size);
         fseek(temp_file, 0, SEEK_SET);
         fread(data, size, 1, temp_file);
         fclose(temp_file);
@@ -173,7 +166,7 @@ void handlePackElf(int argc, char** argv) {
 }
 
 void writeElfHeader(FILE* file, unsigned int address, int number) {
-    printf("Writing elf header\t address : %x \t number : %i\n", address, number);
+    printf("Writing ELF header\t address : %x \t number : %i\n", address, number);
     struct elf_header header = {
         {0x7F, 0x45, 0x4C, 0x46, 0x01, 0x01, 0x01, 0x61},
         {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
@@ -186,7 +179,7 @@ void writeElfHeader(FILE* file, unsigned int address, int number) {
         0,
         52,
         32,
-        static_cast<short unsigned int>(number),
+        (short unsigned int)number,
         0,
         0,
         0
@@ -195,35 +188,35 @@ void writeElfHeader(FILE* file, unsigned int address, int number) {
 }
 
 void writeElfPHeader(FILE* file, struct file f) {
-    printf("Writing part header for %s\t", f.file_path.c_str());
+    printf("Writing part header for %s\t", f.file_path);
     long flags;
     long type = 1;
-    if (f.flag.compare("ramdisk") == 0) {
+    if (strcmp(f.flag, "ramdisk") == 0) {
         printf("Found ramdisk\n");
         flags = 0x80000000;
-    } else if (f.flag.compare("ipl") == 0) {
+    } else if (strcmp(f.flag, "ipl") == 0) {
         printf("Found ipl\n");
         flags = 0x40000000;
-    } else if (f.flag.compare("cmdline") == 0) {
+    } else if (strcmp(f.flag, "cmdline") == 0) {
         printf("Found cmdline\n");
         flags = 0x20000000;
         type = 4;
-    } else if (f.flag.compare("rpm") == 0) {
+    } else if (strcmp(f.flag, "rpm") == 0) {
         printf("Found rpm\n");
         flags = 0x01000000;
     } else {
         printf("Using zero flag\n");
         flags = 0;
     }
-    printf("Write part header part:%s offset:%i address:%x, size:%i\n", f.flag.c_str(), f.offset, f.address, f.size);
+    printf("Write part header part:%s offset:%i address:%x, size:%i\n", f.flag, f.offset, f.address, f.size);
     struct elfphdr phdr = {
-        static_cast<unsigned int>(type),
+        (unsigned int)type,
         f.offset,
         f.address,
         f.address,
         f.size,
         f.size,
-        static_cast<unsigned int>(flags),
+        (unsigned int)flags,
         0
     };
     fwrite((char *) &phdr, sizeof (phdr), 1, file);
@@ -236,8 +229,10 @@ long getFileSize(FILE* file) {
 
 void handleUnpackElf(int argc, char** argv) {
 
-    string input_path;
-    string output_path;
+    char    *input_path = NULL;
+    char    *output_path = "./";
+    char    out_name[PATH_MAX];
+    int     pagesize = 4096;
 
     for (int i = 2; i < argc; i += 2) {
         char* arg = argv[i];
@@ -248,23 +243,21 @@ void handleUnpackElf(int argc, char** argv) {
         }
     }
 
-    if (input_path.empty()) {
-        printf("Input path not provided...Exit\n");
-        usage();
+    if (strlen(input_path) == 0) {
+        return usage_elftool();
     }
-    if (output_path.empty()) {
-        printf("Output path must be specified....Exit\n");
-        usage();
+    if (strlen(output_path) == 0) {
+        printf("Error: Output path must be specified.\n");
+        return usage_elftool();
     }
 
     int offset = 0;
     FILE* temp;
-    string tempstr;
 
-    FILE* input_file = fopen(input_path.c_str(), "rb");
+    FILE* input_file = fopen(input_path, "rb");
 
     if (input_file == NULL) {
-        printf("Cannot read input boot image %s....Exit", input_path.c_str());
+        printf("Error: Cannot read input boot image %s.\n", input_path);
     }
 
     fseek(input_file, offset, SEEK_SET);
@@ -273,12 +266,12 @@ void handleUnpackElf(int argc, char** argv) {
     offset += elf_header_size;
 
     if (memcmp(elf_magic, header.e_ident, elf_magic_size) != 0) {
-        printf("ELF magic not found....EXIT");
+        printf("Error: ELF magic not found.\n");
         exit(EXIT_FAILURE);
     }
 
     int number_of_parts = header.e_phnum;
-    printf("Found %i parts in elf image\n", number_of_parts);
+    printf("Found %i parts in ELF image\n", number_of_parts);
 
     struct elfphdr pheaders[number_of_parts];
 
@@ -290,12 +283,12 @@ void handleUnpackElf(int argc, char** argv) {
 
     //dump header
     printf("Writing header....\n");
-    unsigned char* fileBuffer = (unsigned char*) malloc(4096);
+    unsigned char* fileBuffer = (unsigned char*) malloc(pagesize);
     fseek(input_file, 0, SEEK_SET);
-    fread(fileBuffer, 4096, 1, input_file);
-    tempstr = output_path + "/header";
-    temp = fopen(tempstr.c_str(), "w+");
-    fwrite(fileBuffer, 4096, 1, temp);
+    fread(fileBuffer, pagesize, 1, input_file);
+    sprintf(out_name, "%s/header", output_path);
+    temp = fopen(out_name, "w+");
+    fwrite(fileBuffer, pagesize, 1, temp);
     fclose(temp);
     free(fileBuffer);
     printf("Done...\n");
@@ -305,7 +298,7 @@ void handleUnpackElf(int argc, char** argv) {
         printf("flag : %u\n", pheader.p_flags);
         printf("offset : %i\n", pheader.p_offset);
         printf("size : %i\n", pheader.p_memsz);
-        string name;
+        char* name;
         switch (pheader.p_flags) {
             case p_flags_cmdline:
                 name = "cmdline";
@@ -318,12 +311,12 @@ void handleUnpackElf(int argc, char** argv) {
                 break;
             case p_flags_rpm:
                 name = "rpm";
-            default:
-                name = "ramdisk";
+            case p_flags_ramdisk:
+                name = "ramdisk.cpio.gz";
         }
-        tempstr = output_path + "/" + name;
-        printf("%s found at offset %i with size %i\n", name.c_str(), pheader.p_offset, pheader.p_memsz);
-        temp = fopen(tempstr.c_str(), "w+");
+        sprintf(out_name, "%s/%s", output_path, name);
+        printf("%s found at offset %i with size %i\n", name, pheader.p_offset, pheader.p_memsz);
+        temp = fopen(out_name, "w+");
         unsigned char* buffer = (unsigned char*) malloc(pheader.p_memsz);
         fseek(input_file, pheader.p_offset, SEEK_SET);
         fread(buffer, pheader.p_memsz, 1, input_file);
@@ -334,20 +327,20 @@ void handleUnpackElf(int argc, char** argv) {
     fclose(input_file);
 }
 
-unsigned int getAddressFromHeader(string flag) {
+unsigned int getAddressFromHeader(char* flag) {
     unsigned int part_flag;
-    if (flag.compare("cmdline") == 0) {
+    if (strcmp(flag, "cmdline") == 0) {
         part_flag = p_flags_cmdline;
-    } else if (flag.compare("kernel") == 0) {
+    } else if (strcmp(flag, "kernel") == 0) {
         part_flag = p_flags_kernel;
-    } else if (flag.compare("ramdisk") == 0) {
+    } else if (strcmp(flag, "ramdisk") == 0) {
         part_flag = p_flags_ramdisk;
-    } else if (flag.compare("rpm") == 0) {
+    } else if (strcmp(flag, "rpm") == 0) {
         part_flag = p_flags_rpm;
-    } else if (flag.compare("ipl") == 0) {
+    } else if (strcmp(flag, "ipl") == 0) {
         part_flag = p_flags_ipl;
     } else {
-        printf("Unknown flag : %s\n", flag.c_str());
+        printf("Error: Unknown flag: %s\n", flag);
         exit(EXIT_FAILURE);
     }
     for (int i = 0; i < 5; i++) {
@@ -357,22 +350,29 @@ unsigned int getAddressFromHeader(string flag) {
             return part_header.p_paddr;
         }
     }
-    printf("Address of %x cannot found from header file", part_flag);
+    printf("Error: Address of %x cannot be read from header file.\n", part_flag);
     exit(EXIT_FAILURE);
 }
 
-void usage() {
-    printf("Usage:\n\n");
-    printf("For packing\n");
-    printf("If you have header file containing address of kernel, ramdisk etc..\n");
-    printf("elftool pack -o output-path header=path/to/header kernel-path "
-            "ramdisk-path,ramdisk ipl-path,ipl "
-            "rpm-path,rpm cmdline-path@cmdline\n\n");
-    printf("elftool pack -o output-path kernel-path@address "
-            "ramdisk-path@address,ramdisk ipl-path@address,ipl "
-            "rpm-path@address,rpm cmdline-path@cmdline\n\n");
-    printf("For unpacking\n");
-    printf("elftool unpack -i input-path -o output-path\n");
+void usage_elftool() {
+    printf("Usage: elftool pack|unpack -options <arguments>\n\n");
+    printf("       unpack  Unpack ELF file.\n");
+    printf("               -i <input-file> [ -o <output-dir> ]\n\n");
+    printf("       pack    Pack ELF file.\n");
+    printf("               -o <output-file> [header=<file>] <file>[@<address>],<flag> <file>@cmdline\n\n");
+    printf("               If header file is present:\n");
+    printf("                  header=<header>\n");
+    printf("                  <kernel>,kernel\n");
+    printf("                  <ramdisk>,ramdisk\n");
+    printf("                [ <ipl>,ipl ]\n");
+    printf("                [ <rpm>,rpm ]\n");
+    printf("                  <cmdline>@cmdline\n\n");
+    printf("                If header file is not present you must specify each address manually:\n");
+    printf("                  <kernel>@<kernel-address>,kernel\n");
+    printf("                  <ramdisk>@<ramdisk-address>,ramdisk\n");
+    printf("                [ <ipl>@<ipl-address>,ipl ]\n");
+    printf("                [ <rpm>@<rpm-address>,rpm ]\n");
+    printf("                  <cmdline>@cmdline\n\n");
+    printf("       help     This help screen.\n\n");
     exit(EXIT_FAILURE);
 }
-
