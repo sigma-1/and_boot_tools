@@ -1,4 +1,5 @@
 OS = $(shell uname)
+PREFIX ?= /usr/local/bin
 
 ifeq ($(OS), Darwin)
 LIBINOTIFY_CONFIG = $(shell . libinotify/autogen.sh \
@@ -31,6 +32,9 @@ clean:
 	$(MAKE) -C libmincrypt clean
 	$(MAKE) -C bootimg clean
 endif
+
+install:
+	cp bootimg/bootimg $(PREFIX)
 
 indent:
 	$(MAKE) -C libsepol $@
