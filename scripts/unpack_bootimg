@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+boot=
+if [ -z "$1" ]
+then
+  boot=boot.img
+else
+  boot=$1
+fi
+echo "Boot = $boot"
+bootimg unpackimg -i $boot
+
+dir=${boot%.*}
+mkdir -p "$dir"
+
+mv boot.img-ramdisk.gz "$dir/ramdisk.cpio.gz"
+mv boot.img-zImage "$dir/zImage"
+
+cd $dir
+gunzip -c ramdisk.cpio.gz | cpio -i
+exit 0
