@@ -12,8 +12,8 @@
  * under the terms of the GNU General Public License version 2 as published by
  * the Free Software Foundation.
  */
-#ifndef _UAPI_INPUT_EVENT_CODES_H
-#define _UAPI_INPUT_EVENT_CODES_H
+#ifndef _LINUX_INPUT_EVENT_CODES_H
+#define _LINUX_INPUT_EVENT_CODES_H
 
 /*
  * Device properties and quirks
@@ -801,4 +801,4 @@
 #define SND_MAX			0x07
 #define SND_CNT			(SND_MAX+1)
 
-#endif
+#endif /* _LINUX_INPUT_EVENT_CODES_H */

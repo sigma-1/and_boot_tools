@@ -1,42 +1,14 @@
-OS = $(shell uname)
 PREFIX ?= /usr/local/bin
 
-ifeq ($(OS), Darwin)
-LIBINOTIFY_CONFIG = $(shell . libinotify/autogen.sh \
-					&& . libinotify/configure)
-endif
+.PHONY: all clean install
 
-ifeq ($(OS), Darwin)
 all:
-	$(LIBINOTIFY_CONFIG)
-	$(MAKE) -C libinotify
-	$(MAKE) -C libsepol
-	$(MAKE) -C libmincrypt
-	$(MAKE) -C bootimg
-else ifeq ($OS), Linux)
-all:
-	$(MAKE) -C libsepol
-	$(MAKE) -C libmincrypt
-	$(MAKE) -C bootimg
-endif
+	$(MAKE) -C libs
+	$(MAKE) -C src
 
-ifeq ($(OS), Darwin)
 clean:
-	$(MAKE) -C libinotify clean
-	$(MAKE) -C libsepol clean
-	$(MAKE) -C libmincrypt clean
-	$(MAKE) -C bootimg clean
-else ifeq ($OS), Linux)
-clean:
-	$(MAKE) -C libsepol clean
-	$(MAKE) -C libmincrypt clean
-	$(MAKE) -C bootimg clean
-endif
+	$(MAKE) -C libs clean
+	$(MAKE) -C src clean
 
 install:
-	cp bootimg/bootimg $(PREFIX)
-
-indent:
-	$(MAKE) -C libsepol $@
-	$(MAKE) -C bootimg $@
-
+	cp src/bootimg $(PREFIX)
