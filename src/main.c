@@ -58,7 +58,7 @@ typedef struct APPLET {
 
 static const APPLET applets[] = {
 	{ "append2simg", main_append2simg },
-	{ "dtbinfo", main_dhtbsign },
+	{ "dhtbsign", main_dhtbsign },
 	{ "dtbinfo", main_dtbinfo },
 	{ "dtbtool", main_dtbtool },
 	{ "elftool", main_elftool },
