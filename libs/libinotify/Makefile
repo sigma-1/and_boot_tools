@@ -1,8 +1,8 @@
 CC ?= /usr/bin/clang
-AR ?= /usr/bin/ar
+AR ?= /usr/bin/ar  -frs
 RM ?= rm -f
 
-CFLAGS = -ffunction-sections -fdata-sections -O3
+CFLAGS = -Wall -O3 -ffunction-sections -fdata-sections -Bstatic -fPIC -fPIE -std=c99
 EXT = a
 LIB = libinotify.$(EXT)
 SRCS = $(wildcard *.c)
@@ -21,5 +21,5 @@ $(LIB):$(LIB_OBJS)
 	@echo "AR $@"
 
 %.o:%.c
-	@$(CC) -o $@ $(CFLAGS) -fPIC -c $< $(INC)
+	@$(CC) -o $@ $(CFLAGS) -fPIC -fPIE -c $< $(INC)
 	@echo "$@" | xargs -n1 | ts "CC"

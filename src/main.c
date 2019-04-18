@@ -12,28 +12,44 @@
 #include <mach-o/dyld.h>
 #endif
 
-int main_unpackelf(int argc, char **argv);
-int main_unpackimg(int argc, char **argv);
-int main_mkimg(int argc, char **argv);
-int main_unpackinitfs(int argc, char **argv);
-int main_mkinitfs(int argc, char **argv);
+int main_append2simg(int argc, char *argv[]);
+int main_dhtbsign (int argc, char** argv);
+int main_dtbinfo(int argc, char **argv);
+int main_dtbtool(int argc, char **argv);
+int main_elftool(int argc, char **argv);
+int main_fctxinject(int argc, char **argv);
 int main_getarch(int argc, char **argv);
+int main_gunzip(int argc, char **argv);
+int main_hexpatch(int argc, char **argv);
+int main_img2simg(int argc, char *argv[]);
+int main_kerneldump(int argc, char *argv[]);
 #ifndef WIN32
 int main_keycheck(int argc, char **argv);
 #endif
-int main_seinject(int argc, char **argv);
-int main_fctxinject(int argc, char **argv);
-int main_readta(int argc, char **argv);
-int main_dtbinfo(int argc, char **argv);
-int main_dtbtool(int argc, char **argv);
-int main_offsetof(int argc, char **argv);
-int main_replace(int argc, char **argv);
+int main_loki(int argc, char** argv);
 int main_mboot(int argc, char **argv);
-int main_hexpatch(int argc, char **argv);
-int main_elftool(int argc, char **argv);
+int main_mkbootimg(int argc, char **argv);
+int main_mkcpio (int argc, char *argv[]);
+int main_mkinitfs(int argc, char **argv);
+int main_mkmtkhdr(int argc, char **argv);
+int main_offsetof(int argc, char **argv);
+int main_pem2mincrypt(int argc, char** argv);
+int main_readta(int argc, char **argv);
+int main_replace(int argc, char **argv);
+int main_sdat2img(int argc, char *argv[]);
+int main_seinject(int argc, char **argv);
+int main_simg2img(int argc, char *argv[]);
+int main_simg2simg(int argc, char *argv[]);
+int main_uncpio(int argc, char **argv);
+int main_unpackelf(int argc, char **argv);
+int main_unpackbootimg(int argc, char **argv);
+int main_unpackinitfs(int argc, char **argv);
+int main_untar(int argc, char *argv[]);
+int main_unzip(int argc, char *argv[]);
 #ifndef WIN32
 int main_xattr(int argc, char *argv[]);
 #endif
+int main_zip(int argc, char* argv[]);
 
 typedef struct APPLET {
 	char	*name;
@@ -41,28 +57,44 @@ typedef struct APPLET {
 } APPLET;
 
 static const APPLET applets[] = {
+	{ "append2simg", main_append2simg },
+	{ "dtbinfo", main_dhtbsign },
 	{ "dtbinfo", main_dtbinfo },
 	{ "dtbtool", main_dtbtool },
 	{ "elftool", main_elftool },
 	{ "fctxinject", main_fctxinject },
 	{ "getarch", main_getarch },
+	{ "gunzip", main_gunzip },
 	{ "hexpatch", main_hexpatch },
+	{ "img2simg", main_img2simg },
 	#ifndef WIN32
+	{ "kerneldump", main_kerneldump },
 	{ "keycheck", main_keycheck },
 	#endif
+	{ "loki", main_loki },
 	{ "mboot", main_mboot },
-	{ "mkimg", main_mkimg },
+	{ "mkbootimg", main_mkbootimg },
+	{ "mkcpio", main_mkcpio },
 	{ "mkinitfs", main_mkinitfs },
+	{ "mkmtkhdr", main_mkmtkhdr },
 	{ "offsetof", main_offsetof },
+	{ "pem2mincrypt", main_pem2mincrypt },
 	{ "readta", main_readta },
 	{ "replace", main_replace },
+	{ "sdat2img", main_sdat2img },
 	{ "seinject", main_seinject },
+	{ "simg2img", main_simg2img },
+	{ "simg2simg", main_simg2simg },
+	{ "uncpio", main_uncpio },
 	{ "unpackelf", main_unpackelf },
-	{ "unpackimg", main_unpackimg },
+	{ "unpackbootimg", main_unpackbootimg },
 	{ "unpackinitfs", main_unpackinitfs },
+	{ "untar", main_untar },
+	{ "unzip", main_unzip },
 	#ifndef WIN32
-	{ "xattr", main_xattr }
+	{ "xattr", main_xattr },
 	#endif
+	{ "zip", main_zip }
 };
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))

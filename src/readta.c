@@ -103,7 +103,7 @@ int main_readta(int argc, char* argv[])
 	while (pos<tasize-sizeof(magic)) {
 
 		if (pos > 0x7ff00)
-			pos = pos;
+			pos = sizeof(pos);
 
 		if (!mf) {
 			/* Search for magic */

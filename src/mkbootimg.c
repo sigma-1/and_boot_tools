@@ -25,9 +25,9 @@
 #include <stdbool.h>
 #endif
 
-#include <sha.h>
-#include <sha256.h>
-#include <bootimg.h>
+#include <mincrypt/sha.h>
+#include <mincrypt/sha256.h>
+#include <bootimg/bootimg.h>
 
 static void *load_file(const char *fn, unsigned *_sz)
 {
@@ -59,9 +59,9 @@ oops:
     return 0;
 }
 
-int usage_mkimg(void)
+int usage_mkbootimg(void)
 {
-    fprintf(stderr,"usage: mkimg\n"
+    fprintf(stderr,"usage: mkbootimg\n"
             "       --kernel <filename>\n"
             "       [ --ramdisk <filename> ]\n"
             "       [ --second <2ndbootloader-filename> ]\n"
@@ -250,7 +250,7 @@ void generate_id(enum hash_alg alg, boot_img_hdr_v1 *hdr, void *kernel_data,
     }
 }
 
-int main_mkimg(int argc, char **argv)
+int main_mkbootimg(int argc, char **argv)
 {
     boot_img_hdr_v1 hdr;
 
@@ -352,10 +352,10 @@ int main_mkimg(int argc, char **argv)
                     return -1;
                 }
             } else {
-                return usage_mkimg();
+                return usage_mkbootimg();
             }
         } else {
-            return usage_mkimg();
+            return usage_mkbootimg();
         }
     }
     hdr.page_size = pagesize;
@@ -370,17 +370,17 @@ int main_mkimg(int argc, char **argv)
 
     if(bootimg == 0) {
         fprintf(stderr,"error: no output filename specified\n");
-        return usage_mkimg();
+        return usage_mkbootimg();
     }
 
     if(kernel_fn == 0) {
         fprintf(stderr,"error: no kernel image specified\n");
-        return usage_mkimg();
+        return usage_mkbootimg();
     }
 
     if(strlen(board) >= BOOT_NAME_SIZE) {
         fprintf(stderr,"error: board name too large\n");
-        return usage_mkimg();
+        return usage_mkbootimg();
     }
 
     strcpy((char *) hdr.name, board);

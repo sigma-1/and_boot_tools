@@ -13,7 +13,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <limits.h>
-#include <elfboot.h>
+
+#include <bootimg/elfboot.h>
 
 void handlePackElf(int, char **);
 void handleUnpackElf(int, char **);

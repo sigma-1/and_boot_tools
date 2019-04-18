@@ -40,7 +40,7 @@ int main_xattr(int argc, char *argv[]) {
 			fprintf(stderr, "xattr get path name size\n");
 			return 1;
 		}
-		size_t size = atoi(argv[4]);
+		int size = atoi(argv[4]);
 		unsigned char value[size];
 
 		#ifdef __APPLE__
@@ -50,7 +50,7 @@ int main_xattr(int argc, char *argv[]) {
 		#endif
 
 		if (rv >= 0) {
-			fprintf(stderr, "ok %zd %.*s\n", rv, MIN(rv, size),	value);
+			fprintf(stderr, "ok %zd %.*s\n", rv, (int) MIN(rv, size), value);
 		} else {
 			fprintf(stderr, "ok %zd %s\n", rv, strerror(errno));
 		}

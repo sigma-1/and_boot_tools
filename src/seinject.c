@@ -12,14 +12,15 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include <sepol/policydb/policydb.h>
-#include <sepol/policydb/expand.h>
-#include <sepol/policydb/link.h>
-#include <sepol/policydb/services.h>
-#include <sepol/policydb/avrule_block.h>
-#include <sepol/policydb/conditional.h>
-#include <sepol/policydb/constraint.h>
-#include <sepol/debug.h>
+
+#include <sepol/sepol/policydb/policydb.h>
+#include <sepol/sepol/policydb/expand.h>
+#include <sepol/sepol/policydb/link.h>
+#include <sepol/sepol/policydb/services.h>
+#include <sepol/sepol/policydb/avrule_block.h>
+#include <sepol/sepol/policydb/conditional.h>
+#include <sepol/sepol/policydb/constraint.h>
+#include <sepol/sepol/debug.h>
 
 #ifdef WIN32
 #define strtok_r strtok_s

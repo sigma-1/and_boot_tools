@@ -10,8 +10,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <sha.h>
-#include <bootimg.h>
+#include <mincrypt/sha.h>
+#include <bootimg/bootimg.h>
 
 typedef unsigned char byte;
 
@@ -63,16 +63,16 @@ const char *detect_hash_type(boot_img_hdr_v1 *hdr)
     }
 }
 
-int usage_unpackimg()
+int usage_unpackbootimg()
 {
-    printf("usage: unpackimg\n");
+    printf("usage: unpackbootimg\n");
     printf("\t-i|--input boot.img\n");
     printf("\t[ -o|--output output_directory]\n");
     printf("\t[ -p|--pagesize <size-in-hexadecimal> ]\n");
     return 0;
 }
 
-int main_unpackimg(int argc, char** argv)
+int main_unpackbootimg(int argc, char** argv)
 {
     char tmp[PATH_MAX];
     char* directory = "./";
@@ -97,12 +97,12 @@ int main_unpackimg(int argc, char** argv)
         } else if(!strcmp(arg, "--pagesize") || !strcmp(arg, "-p")) {
             pagesize = strtoul(val, 0, 16);
         } else {
-            return usage_unpackimg();
+            return usage_unpackbootimg();
         }
     }
 
     if (filename == NULL) {
-        return usage_unpackimg();
+        return usage_unpackbootimg();
     }
 
     struct stat st;

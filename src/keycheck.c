@@ -8,7 +8,11 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/ioctl.h>
+#ifdef __APPLE__
+#include <inotify/sys/inotify.h>
+#else
 #include <sys/inotify.h>
+#endif
 #include <sys/poll.h>
 #include <linux/input.h>
 
