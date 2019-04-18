@@ -18,9 +18,9 @@
 #ifndef _SEPOL_POLICYDB_CONSTRAINT_H_
 #define _SEPOL_POLICYDB_CONSTRAINT_H_
 
-#include <sepol/policydb/policydb.h>
-#include <sepol/policydb/ebitmap.h>
-#include <sepol/policydb/flask_types.h>
+#include "policydb.h"
+#include "ebitmap.h"
+#include "flask_types.h"
 
 #ifdef __cplusplus
 extern "C" {

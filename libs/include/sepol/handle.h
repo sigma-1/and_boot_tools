@@ -1,7 +1,7 @@
 #ifndef _SEPOL_INTERNAL_HANDLE_H_
 #define _SEPOL_INTERNAL_HANDLE_H_
 
-#include <sepol/handle.h>
+#include "sepol/handle.h"
 
 struct sepol_handle {
 	/* Error handling */

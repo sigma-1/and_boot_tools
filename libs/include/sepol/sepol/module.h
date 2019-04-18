@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include <sepol/handle.h>
-#include <sepol/policydb.h>
+#include "handle.h"
+#include "policydb.h"
 
 #ifdef __cplusplus
 extern "C" {

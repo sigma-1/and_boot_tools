@@ -25,8 +25,8 @@
 #ifndef _SEPOL_POLICYDB_HIERARCHY_H_
 #define _SEPOL_POLICYDB_HIERARCHY_H_
 
-#include <sepol/policydb/avtab.h>
-#include <sepol/policydb/policydb.h>
+#include "avtab.h"
+#include "policydb.h"
 
 #ifdef __cplusplus
 extern "C" {

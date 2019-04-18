@@ -2,7 +2,7 @@
 #define _SEPOL_USER_RECORD_H_
 
 #include <stddef.h>
-#include <sepol/handle.h>
+#include "handle.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,9 +1,9 @@
 #ifndef _SEPOL_IBPKEYS_H_
 #define _SEPOL_IBPKEYS_H_
 
-#include <sepol/handle.h>
-#include <sepol/policydb.h>
-#include <sepol/ibpkey_record.h>
+#include "handle.h"
+#include "policydb.h"
+#include "ibpkey_record.h"
 
 
 #ifdef __cplusplus

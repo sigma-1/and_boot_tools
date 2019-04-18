@@ -16,7 +16,7 @@
 #endif
 
 #include <errno.h>
-#include <dso.h>
+#include "dso.h"
 
 #ifdef __APPLE__
 #define __BYTE_ORDER  BYTE_ORDER
@@ -53,7 +53,7 @@
 
 #define ARRAY_SIZE(x) (sizeof(x)/sizeof((x)[0]))
 
-#define is_saturated(x) (x == (typeof(x))-1)
+#define is_saturated(x) (x == (__typeof__(x))-1)
 #define zero_or_saturated(x) ((x == 0) || is_saturated(x))
 
 /* Policy compatibility information. */

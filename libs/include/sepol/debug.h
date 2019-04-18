@@ -31,7 +31,7 @@
 #endif
 
 #include <stdio.h>
-#include <sepol/debug.h>
+#include "sepol/debug.h"
 #include "dso.h"
 #include "handle.h"
 

@@ -21,10 +21,10 @@
 #ifndef _SEPOL_POLICYDB_CONDITIONAL_H_
 #define _SEPOL_POLICYDB_CONDITIONAL_H_
 
-#include <sepol/policydb/flask_types.h>
-#include <sepol/policydb/avtab.h>
-#include <sepol/policydb/symtab.h>
-#include <sepol/policydb/policydb.h>
+#include "flask_types.h"
+#include "avtab.h"
+#include "symtab.h"
+#include "policydb.h"
 
 #ifdef __cplusplus
 extern "C" {

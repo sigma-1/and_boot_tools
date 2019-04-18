@@ -1,9 +1,9 @@
 #ifndef _SEPOL_USERS_H_
 #define _SEPOL_USERS_H_
 
-#include <sepol/policydb.h>
-#include <sepol/user_record.h>
-#include <sepol/handle.h>
+#include "policydb.h"
+#include "user_record.h"
+#include "handle.h"
 #include <stddef.h>
 
 #ifdef __cplusplus

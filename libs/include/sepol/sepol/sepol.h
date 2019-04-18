@@ -8,27 +8,27 @@
 extern "C" {
 #endif
 
-#include <sepol/user_record.h>
-#include <sepol/context_record.h>
-#include <sepol/iface_record.h>
-#include <sepol/ibpkey_record.h>
-#include <sepol/ibendport_record.h>
-#include <sepol/port_record.h>
-#include <sepol/boolean_record.h>
-#include <sepol/node_record.h>
+#include "user_record.h"
+#include "context_record.h"
+#include "iface_record.h"
+#include "ibpkey_record.h"
+#include "ibendport_record.h"
+#include "port_record.h"
+#include "boolean_record.h"
+#include "node_record.h"
 
-#include <sepol/booleans.h>
-#include <sepol/interfaces.h>
-#include <sepol/ibpkeys.h>
-#include <sepol/ibendports.h>
-#include <sepol/ports.h>
-#include <sepol/nodes.h>
-#include <sepol/users.h>
-#include <sepol/handle.h>
-#include <sepol/debug.h>
-#include <sepol/policydb.h>
-#include <sepol/module.h>
-#include <sepol/context.h>
+#include "booleans.h"
+#include "interfaces.h"
+#include "ibpkeys.h"
+#include "ibendports.h"
+#include "ports.h"
+#include "nodes.h"
+#include "users.h"
+#include "handle.h"
+#include "debug.h"
+#include "policydb.h"
+#include "module.h"
+#include "context.h"
 
 /* Set internal policydb from a file for subsequent service calls. */
 extern int sepol_set_policydb_from_file(FILE * fp);

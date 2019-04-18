@@ -13,7 +13,7 @@
 #ifndef _SEPOL_POLICYDB_SYMTAB_H_
 #define _SEPOL_POLICYDB_SYMTAB_H_
 
-#include <sepol/policydb/hashtab.h>
+#include "hashtab.h"
 
 #ifdef __cplusplus
 extern "C" {

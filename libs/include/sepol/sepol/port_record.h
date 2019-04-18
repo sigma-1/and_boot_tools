@@ -1,8 +1,8 @@
 #ifndef _SEPOL_PORT_RECORD_H_
 #define _SEPOL_PORT_RECORD_H_
 
-#include <sepol/context_record.h>
-#include <sepol/handle.h>
+#include "context_record.h"
+#include "handle.h"
 
 #ifdef __cplusplus
 extern "C" {

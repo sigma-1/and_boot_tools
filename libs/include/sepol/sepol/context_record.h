@@ -1,7 +1,7 @@
 #ifndef _SEPOL_CONTEXT_RECORD_H_
 #define _SEPOL_CONTEXT_RECORD_H_
 
-#include <sepol/handle.h>
+#include "handle.h"
 
 #ifdef __cplusplus
 extern "C" {

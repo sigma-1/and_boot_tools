@@ -1,8 +1,8 @@
 #ifndef _SEPOL_BOOLEAN_INTERNAL_H_
 #define _SEPOL_BOOLEAN_INTERNAL_H_
 
-#include <sepol/boolean_record.h>
-#include <sepol/booleans.h>
+#include "sepol/boolean_record.h"
+#include "sepol/booleans.h"
 #include "dso.h"
 
 hidden_proto(sepol_bool_key_create)

@@ -2,8 +2,8 @@
 #define _SEPOL_NODE_RECORD_H_
 
 #include <stddef.h>
-#include <sepol/context_record.h>
-#include <sepol/handle.h>
+#include "context_record.h"
+#include "handle.h"
 
 #ifdef __cplusplus
 extern "C" {

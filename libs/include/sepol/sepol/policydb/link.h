@@ -6,9 +6,9 @@
 #ifndef _SEPOL_POLICYDB_LINK_H
 #define _SEPOL_POLICYDB_LINK_H
 
-#include <sepol/handle.h>
-#include <sepol/errcodes.h>
-#include <sepol/policydb/policydb.h>
+#include "../handle.h"
+#include "../errcodes.h"
+#include "policydb.h"
 
 
 #include <stddef.h>

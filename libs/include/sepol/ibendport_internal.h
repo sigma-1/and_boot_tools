@@ -1,8 +1,8 @@
 #ifndef _SEPOL_IBENDPORT_INTERNAL_H_
 #define _SEPOL_IBENDPORT_INTERNAL_H_
 
-#include <sepol/ibendport_record.h>
-#include <sepol/ibendports.h>
+#include "sepol/ibendport_record.h"
+#include "sepol/ibendports.h"
 #include "dso.h"
 
 hidden_proto(sepol_ibendport_create)

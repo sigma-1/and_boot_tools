@@ -1,7 +1,7 @@
 #ifndef _SEPOL_CONTEXT_INTERNAL_H_
 #define _SEPOL_CONTEXT_INTERNAL_H_
 
-#include <sepol/context_record.h>
+#include "sepol/context_record.h"
 #include "dso.h"
 
 hidden_proto(sepol_context_clone)

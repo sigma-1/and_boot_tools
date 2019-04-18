@@ -26,8 +26,8 @@
 #define _SEPOL_POLICYDB_EXPAND_H
 
 #include <stddef.h>
-#include <sepol/handle.h>
-#include <sepol/policydb/conditional.h>
+#include "../handle.h"
+#include "conditional.h"
 
 #ifdef __cplusplus
 extern "C" {

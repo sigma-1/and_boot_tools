@@ -1,9 +1,9 @@
 #ifndef _SEPOL_CONTEXT_H_
 #define _SEPOL_CONTEXT_H_
 
-#include <sepol/context_record.h>
-#include <sepol/policydb.h>
-#include <sepol/handle.h>
+#include "context_record.h"
+#include "policydb.h"
+#include "handle.h"
 
 #ifdef __cplusplus
 extern "C" {

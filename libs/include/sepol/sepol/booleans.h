@@ -2,9 +2,9 @@
 #define _SEPOL_BOOLEANS_H_
 
 #include <stddef.h>
-#include <sepol/policydb.h>
-#include <sepol/boolean_record.h>
-#include <sepol/handle.h>
+#include "policydb.h"
+#include "boolean_record.h"
+#include "handle.h"
 
 #ifdef __cplusplus
 extern "C" {

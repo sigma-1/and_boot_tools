@@ -1,8 +1,8 @@
 #ifndef _SEPOL_IFACE_RECORD_H_
 #define _SEPOL_IFACE_RECORD_H_
 
-#include <sepol/handle.h>
-#include <sepol/context_record.h>
+#include "handle.h"
+#include "context_record.h"
 
 #ifdef __cplusplus
 extern "C" {

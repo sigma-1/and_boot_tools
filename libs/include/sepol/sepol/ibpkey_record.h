@@ -3,8 +3,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include <sepol/context_record.h>
-#include <sepol/handle.h>
+#include "context_record.h"
+#include "handle.h"
 
 #define INET6_ADDRLEN 16
 

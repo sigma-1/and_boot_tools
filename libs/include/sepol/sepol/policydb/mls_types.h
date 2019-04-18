@@ -32,8 +32,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <sepol/policydb/ebitmap.h>
-#include <sepol/policydb/flask_types.h>
+#include "ebitmap.h"
+#include "flask_types.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -2,8 +2,8 @@
 #include <stdarg.h>
 #include <sys/types.h>
 
-#include <sepol/policydb/avtab.h>
-#include <sepol/policydb/policydb.h>
+#include "sepol/policydb/avtab.h"
+#include "sepol/policydb/policydb.h"
 
 #define STACK_SIZE 16
 #define DEFAULT_LEVEL "systemlow"

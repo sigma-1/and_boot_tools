@@ -24,7 +24,7 @@
 #define _SEPOL_MLS_INTERNAL_H_
 
 #include "policydb_internal.h"
-#include <sepol/policydb/context.h>
+#include "sepol/policydb/context.h"
 #include "handle.h"
 
 extern int mls_from_string(sepol_handle_t * handle,

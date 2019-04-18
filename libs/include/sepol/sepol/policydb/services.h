@@ -12,8 +12,8 @@
  * Security server interface.
  */
 
-#include <sepol/policydb/flask_types.h>
-#include <sepol/policydb/policydb.h>
+#include "flask_types.h"
+#include "policydb.h"
 #include <stddef.h>
 
 #ifdef __cplusplus

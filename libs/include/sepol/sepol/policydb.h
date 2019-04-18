@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdio.h>
 
-#include <sepol/handle.h>
+#include "handle.h"
 
 #ifdef __cplusplus
 extern "C" {

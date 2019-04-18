@@ -1,9 +1,9 @@
 #ifndef _SEPOL_IBENDPORTS_H_
 #define _SEPOL_IBENDPORTS_H_
 
-#include <sepol/handle.h>
-#include <sepol/policydb.h>
-#include <sepol/ibendport_record.h>
+#include "handle.h"
+#include "policydb.h"
+#include "ibendport_record.h"
 
 #ifdef __cplusplus
 extern "C" {

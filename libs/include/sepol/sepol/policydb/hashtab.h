@@ -13,7 +13,7 @@
 #ifndef _SEPOL_POLICYDB_HASHTAB_H_
 #define _SEPOL_POLICYDB_HASHTAB_H_
 
-#include <sepol/errcodes.h>
+#include "../errcodes.h"
 
 #include <stdint.h>
 #include <stdio.h>

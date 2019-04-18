@@ -23,10 +23,10 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-#include <sepol/module.h>
+#include "../module.h"
 
-#include <sepol/policydb/policydb.h>
-#include <sepol/policydb/conditional.h>
+#include "policydb.h"
+#include "conditional.h"
 
 #define SEPOL_MODULE_PACKAGE_MAGIC 0xf97cff8f
 

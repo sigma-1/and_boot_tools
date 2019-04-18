@@ -20,7 +20,7 @@
 #ifndef _SEPOL_AVRULE_BLOCK_H_
 #define _SEPOL_AVRULE_BLOCK_H_
 
-#include <sepol/policydb/policydb.h>
+#include "policydb.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -10,7 +10,7 @@
 #ifndef _SEPOL_POLICYDB_SIDTAB_H_
 #define _SEPOL_POLICYDB_SIDTAB_H_
 
-#include <sepol/policydb/context.h>
+#include "context.h"
 
 #ifdef __cplusplus
 extern "C" {

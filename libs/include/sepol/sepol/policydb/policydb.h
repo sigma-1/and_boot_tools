@@ -54,14 +54,14 @@
 #include <stdio.h>
 #include <stddef.h>
 
-#include <sepol/policydb.h>
+#include "../policydb.h"
 
-#include <sepol/policydb/flask_types.h>
-#include <sepol/policydb/symtab.h>
-#include <sepol/policydb/avtab.h>
-#include <sepol/policydb/context.h>
-#include <sepol/policydb/constraint.h>
-#include <sepol/policydb/sidtab.h>
+#include "flask_types.h"
+#include "symtab.h"
+#include "avtab.h"
+#include "context.h"
+#include "constraint.h"
+#include "sidtab.h"
 
 #define ERRMSG_LEN 1024
 

@@ -3,9 +3,9 @@
 
 #include <stddef.h>
 #include "context_internal.h"
-#include <sepol/policydb/context.h>
-#include <sepol/policydb/policydb.h>
-#include <sepol/handle.h>
+#include "sepol/policydb/context.h"
+#include "sepol/policydb/policydb.h"
+#include "sepol/handle.h"
 
 /* Create a context structure from high level representation */
 extern int context_from_record(sepol_handle_t * handle,

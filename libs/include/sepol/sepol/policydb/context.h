@@ -19,8 +19,8 @@
 #define _SEPOL_POLICYDB_CONTEXT_H_
 
 #include <stddef.h>
-#include <sepol/policydb/ebitmap.h>
-#include <sepol/policydb/mls_types.h>
+#include "ebitmap.h"
+#include "mls_types.h"
 
 #ifdef __cplusplus
 extern "C" {

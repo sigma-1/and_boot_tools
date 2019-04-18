@@ -1,9 +1,9 @@
 #ifndef __SEPOL_INTERFACES_H_
 #define __SEPOL_INTERFACES_H_
 
-#include <sepol/policydb.h>
-#include <sepol/iface_record.h>
-#include <sepol/handle.h>
+#include "policydb.h"
+#include "iface_record.h"
+#include "handle.h"
 
 #ifdef __cplusplus
 extern "C" {
